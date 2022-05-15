@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "paper": "^0.12.15",
+    "pdfjs-dist": "^2.14.305"
+  }
+}
