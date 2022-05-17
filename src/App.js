@@ -1,4 +1,4 @@
-import Canvas from './Components/canvas.js';
+import Canvas from './Components/Canvas.js';
 
 function App() {
   return (

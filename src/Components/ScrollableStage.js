@@ -1,9 +1,8 @@
 import React from 'react';
-import { Stage, Layer, Star, Text } from 'react-konva';
+import { Stage } from 'react-konva';
 import Konva from 'konva';
-import './canvas.css';
 
-export default function Canvas(props) {
+export default function ScrollableCanvas(props) {
   
   const [handleStagePinchMove, handleStagePinchEnd] = (() => {
      // by default Konva prevent some events when node is dragging
@@ -141,47 +140,7 @@ export default function Canvas(props) {
       onWheel={handleStageWheel}
       onTouchMove={handleStagePinchMove}
       onTouchEnd={handleStagePinchEnd}>
-      <Layer>
-        <Text text="Try to drag a star" />
-        <Star
-            key={"A"}
-            id={1}
-            x={100}
-            y={100}
-            numPoints={5}
-            innerRadius={20}
-            outerRadius={40}
-            fill="#89b717"
-            opacity={0.8}
-            rotation={0}
-            shadowColor="black"
-            shadowBlur={10}
-            shadowOpacity={0.6}
-            shadowOffsetX={5}
-            shadowOffsetY={5}
-            scaleX={1}
-            scaleY={1}
-          />
-        <Star
-          key={"B"}
-          id={2}
-          x={300}
-          y={300}
-          numPoints={5}
-          innerRadius={20}
-          outerRadius={40}
-          fill="#aaf"
-          opacity={0.8}
-          rotation={30}
-          shadowColor="black"
-          shadowBlur={10}
-          shadowOpacity={0.6}
-          shadowOffsetX={5}
-          shadowOffsetY={5}
-          scaleX={1}
-          scaleY={1}
-        />
-      </Layer>
+      {props.children}
     </Stage>
   );
 };
