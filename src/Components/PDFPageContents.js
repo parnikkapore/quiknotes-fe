@@ -1,6 +1,6 @@
-import { Image } from 'react-konva';
-import React from 'react';
-import * as pdfjs from 'pdfjs-dist/webpack';
+import { Image } from "react-konva";
+import React from "react";
+import * as pdfjs from "pdfjs-dist/webpack";
 
 export default class PDFPageContents extends React.Component {
   state = {
@@ -11,7 +11,7 @@ export default class PDFPageContents extends React.Component {
     url = <url>.
   }
   */
-  
+
   componentDidMount() {
     this.loadImage(this.props.src);
   }
@@ -20,44 +20,46 @@ export default class PDFPageContents extends React.Component {
       this.loadImage(this.props.src);
     }
   }
-  componentWillUnmount() {
-  }
-  
+  componentWillUnmount() {}
+
   loadImage(url) {
     // Asynchronous download of PDF
     const loadingTask = pdfjs.getDocument(url);
-      loadingTask.promise.then((pdf) => {
-        console.log('PDF loaded');
-        
+    loadingTask.promise.then(
+      (pdf) => {
+        console.log("PDF loaded");
+
         // Fetch the first page
         const pageNumber = 1;
         pdf.getPage(pageNumber).then((page) => {
-          console.log('Page loaded');
-          
+          console.log("Page loaded");
+
           const scale = 1.5;
-          const viewport = page.getViewport({scale: scale});
+          const viewport = page.getViewport({ scale: scale });
 
           // Prepare canvas using PDF page dimensions
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
           canvas.height = viewport.height;
           canvas.width = viewport.width;
 
           // Render PDF page into canvas context
           const renderContext = {
             canvasContext: context,
-            viewport: viewport
+            viewport: viewport,
           };
           const renderTask = page.render(renderContext);
           renderTask.promise.then(() => {
-            console.log('Page rendered');
-            this.handleLoad(canvas)
+            console.log("Page rendered");
+            this.handleLoad(canvas);
           });
         });
-      }, function (reason) {
+      },
+      function (reason) {
         // PDF loading error
         console.error(reason);
-      });
+      }
+    );
   }
   handleLoad = (src) => {
     // after setState react-konva will update canvas and redraw the layer
@@ -70,12 +72,6 @@ export default class PDFPageContents extends React.Component {
     // this.imageNode.getLayer().batchDraw();
   };
   render() {
-    return (
-      <Image
-        x={this.props.x}
-        y={this.props.y}
-        image={this.state.image}
-      />
-    );
+    return <Image x={this.props.x} y={this.props.y} image={this.state.image} />;
   }
-} 
+}
