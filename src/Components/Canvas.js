@@ -2,6 +2,7 @@ import React from 'react';
 import { Stage, Layer, Star, Text } from 'react-konva';
 import Konva from 'konva';
 import ScrollableStage from './ScrollableStage';
+import PDFPageContents from './PDFPageContents';
 import './Canvas.css';
 
 export default function Canvas(props) {
@@ -48,6 +49,7 @@ export default function Canvas(props) {
           scaleX={1}
           scaleY={1}
         />
+        <PDFPageContents src="/test1.pdf" x="0" y="400" />
       </Layer>
     </ScrollableStage>
   );
