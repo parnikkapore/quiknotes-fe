@@ -25,7 +25,7 @@ export default class PDFPageContents extends React.Component {
   
   loadImage(url) {
     // Asynchronous download of PDF
-    const loadingTask = pdfjs.getDocument("/test1.pdf");
+    const loadingTask = pdfjs.getDocument(url);
       loadingTask.promise.then((pdf) => {
         console.log('PDF loaded');
         
