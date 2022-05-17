@@ -1,6 +1,5 @@
 import React from 'react';
-import { Stage, Layer, Star, Text } from 'react-konva';
-import Konva from 'konva';
+import { Layer, Star, Text } from 'react-konva';
 import ScrollableStage from './ScrollableStage';
 import PDFPageContents from './PDFPageContents';
 import './Canvas.css';

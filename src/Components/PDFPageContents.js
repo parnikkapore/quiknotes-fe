@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
 import { Image } from 'react-konva';
+import React from 'react';
 import * as pdfjs from 'pdfjs-dist/webpack';
 
 export default class PDFPageContents extends React.Component {
