@@ -1,41 +1,64 @@
-import React from "react";
-import { Layer, Line, Star, Text } from "react-konva";
-import ScrollableStage from "./ScrollableStage";
+import React, { useEffect } from "react";
+import { Stage, Layer, Line, Star, Text } from "react-konva";
 import PDFPageContents from "./PDFPageContents";
+import HandTool from "./CanvasTools/Hand";
+import PenTool from "./CanvasTools/Pen";
 import "./Canvas.css";
 
 export default function Canvas(props) {
-  // === Paint functionality =====
   const [tool, setTool] = React.useState('pen');
+  
+  // pen
   const [lines, setLines] = React.useState([]);
   const isDrawing = React.useRef(false);
+  
+  const toolmap = {
+    'pen': PenTool(tool, lines, setLines, isDrawing),
+    'drag': HandTool(),
+  }
+  
+  function handleStageWheel(e) {
+    // prevent parent scrolling
+    e.evt.preventDefault();
+    const stage = e.currentTarget;
+    // console.log(stage);
 
-  const handleMouseDown = (e) => {
-    isDrawing.current = true;
-    const pos = e.target.getStage().getRelativePointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y, pos.x, pos.y] }]);
-  };
+    function handleZoom(e) {
+      const scaleBy = 1.02;
+      var oldScale = stage.scaleX();
+      var pointer = stage.getPointerPosition();
 
-  const handleMouseMove = (e) => {
-    // no drawing - skipping
-    if (!isDrawing.current) {
-      return;
+      var mousePointTo = {
+        x: (pointer.x - stage.x()) / oldScale,
+        y: (pointer.y - stage.y()) / oldScale,
+      };
+
+      var newScale = oldScale * Math.pow(scaleBy, e.evt.deltaY / -10);
+      stage.scale({ x: newScale, y: newScale });
+
+      var newPos = {
+        x: pointer.x - mousePointTo.x * newScale,
+        y: pointer.y - mousePointTo.y * newScale,
+      };
+      stage.position(newPos);
     }
-    
-    const stage = e.target.getStage();
-    const point = stage.getRelativePointerPosition();
-    let lastLine = lines[lines.length - 1];
-    // add point
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
 
-    // replace last
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());
-  };
+    function handleScroll(e) {
+      const dx = e.evt.deltaX;
+      const dy = e.evt.deltaY;
 
-  const handleMouseUp = () => {
-    isDrawing.current = false;
-  };
+      const x = stage.x() - dx;
+      const y = stage.y() - dy;
+
+      stage.position({ x, y });
+    }
+
+    if (e.evt.ctrlKey) {
+      handleZoom(e);
+    } else {
+      handleScroll(e);
+    }
+  }
   
   return (
     <>
@@ -48,14 +71,19 @@ export default function Canvas(props) {
       <option value="pen">Pen</option>
       <option value="drag">Hand</option>
     </select>
-    <ScrollableStage
+    <Stage
       id="canvas"
       enabled={tool==="drag"}
       width={window.innerWidth}
       height={window.innerHeight}
-      onMouseDown={tool!=="drag" ? handleMouseDown : ()=>{}}
-      onMouseUp={tool!=="drag" ? handleMouseUp : ()=>{}}
-      onMouseMove={tool!=="drag" ? handleMouseMove : ()=>{}}
+      draggable={toolmap[tool].canvasDraggable ? "draggable" : false}
+      onWheel={handleStageWheel}
+      onMouseDown={toolmap[tool].handleMouseDown}
+      onMouseMove={toolmap[tool].handleMouseMove}
+      onMouseUp={toolmap[tool].handleMouseUp}
+      onTouchStart={toolmap[tool].handleTouchStart}
+      onTouchMove={toolmap[tool].handleTouchMove}
+      onTouchEnd={toolmap[tool].handleTouchEnd}
     >
       <Layer>
         <Text text="Try to draw on the canvas!" />
@@ -112,7 +140,7 @@ export default function Canvas(props) {
             />
         ))}
       </Layer>
-    </ScrollableStage>
+    </Stage>
     </>
   );
 }
