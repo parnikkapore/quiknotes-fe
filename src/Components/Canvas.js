@@ -1,11 +1,19 @@
 import React from "react";
-import { Layer, Line, Star, Text } from "react-konva";
+import { Layer, Line, Star } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import PDFPageContents from "./PDFPageContents";
 import "./Canvas.css";
 
+// === For undo & redo =====
+
+let history = [
+  [],
+];
+let historyStep = 0;
+
 export default function Canvas(props) {
   // === Paint functionality =====
+
   const [tool, setTool] = React.useState('pen');
   const [lines, setLines] = React.useState([]);
   const isDrawing = React.useRef(false);
@@ -21,7 +29,7 @@ export default function Canvas(props) {
     if (!isDrawing.current) {
       return;
     }
-    
+
     const stage = e.target.getStage();
     const point = stage.getRelativePointerPosition();
     let lastLine = lines[lines.length - 1];
@@ -31,74 +39,103 @@ export default function Canvas(props) {
     // replace last
     lines.splice(lines.length - 1, 1, lastLine);
     setLines(lines.concat());
+
   };
 
   const handleMouseUp = () => {
     isDrawing.current = false;
+    // add to history
+    history = history.concat([lines]);
+    historyStep += 1;
   };
-  
+
+  // === Undo and Redo ====
+
+  const handleUndo = () => {
+    if (historyStep === 0) {
+      return;
+    }
+    historyStep -= 1;
+    console.log(historyStep);
+    const previous = history[historyStep];
+    console.log(previous);
+    setLines(previous);
+  };
+
+  const handleRedo = () => {
+    if (historyStep === history.length - 1) {
+      return;
+    }
+    historyStep += 1;
+    console.log(historyStep);
+    const next = history[historyStep];
+    console.log(next);
+    setLines(next);
+  };
+
   return (
     <>
-    <select
-      value={tool}
-      onChange={(e) => {
-        setTool(e.target.value);
-      }}
-    >
-      <option value="pen">Pen</option>
-      <option value="drag">Hand</option>
-    </select>
-    <ScrollableStage
-      id="canvas"
-      enabled={tool==="drag"}
-      width={window.innerWidth}
-      height={window.innerHeight}
-      onMouseDown={tool!=="drag" ? handleMouseDown : ()=>{}}
-      onMouseUp={tool!=="drag" ? handleMouseUp : ()=>{}}
-      onMouseMove={tool!=="drag" ? handleMouseMove : ()=>{}}
-    >
-      <Layer>
-        <Text text="Try to draw on the canvas!" />
-        <Star
-          key={"A"}
-          id={1}
-          x={100}
-          y={100}
-          numPoints={5}
-          innerRadius={20}
-          outerRadius={40}
-          fill="#89b717"
-          opacity={0.8}
-          rotation={0}
-          shadowColor="black"
-          shadowBlur={10}
-          shadowOpacity={0.6}
-          shadowOffsetX={5}
-          shadowOffsetY={5}
-          scaleX={1}
-          scaleY={1}
-        />
-        <Star
-          key={"B"}
-          id={2}
-          x={300}
-          y={300}
-          numPoints={5}
-          innerRadius={20}
-          outerRadius={40}
-          fill="#aaf"
-          opacity={0.8}
-          rotation={30}
-          shadowColor="black"
-          shadowBlur={10}
-          shadowOpacity={0.6}
-          shadowOffsetX={5}
-          shadowOffsetY={5}
-          scaleX={1}
-          scaleY={1}
-        />
-        <PDFPageContents src="/test1.pdf" x="0" y="300" />
-        {lines.map((line, i) => (
+      <select
+        value={tool}
+        onChange={(e) => {
+          setTool(e.target.value);
+        }}
+      >
+        <option value="pen">Pen</option>
+        <option value="drag">Hand</option>
+      </select>
+      <button onClick={handleUndo}>undo</button>
+      <button onClick={handleRedo}>redo</button>
+      <ScrollableStage
+        id="canvas"
+        enabled={tool === "drag"}
+        width={window.innerWidth}
+        height={window.innerHeight}
+        onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
+        onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
+        onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+      >
+        <Layer>
+          <Star
+            key={"A"}
+            id={1}
+            x={100}
+            y={100}
+            numPoints={5}
+            innerRadius={20}
+            outerRadius={40}
+            fill="#89b717"
+            opacity={0.8}
+            rotation={0}
+            shadowColor="black"
+            shadowBlur={10}
+            shadowOpacity={0.6}
+            shadowOffsetX={5}
+            shadowOffsetY={5}
+            scaleX={1}
+            scaleY={1}
+          />
+          <Star
+            key={"B"}
+            id={2}
+            x={300}
+            y={300}
+            numPoints={5}
+            innerRadius={20}
+            outerRadius={40}
+            fill="#aaf"
+            opacity={0.8}
+            rotation={30}
+            shadowColor="black"
+            shadowBlur={10}
+            shadowOpacity={0.6}
+            shadowOffsetX={5}
+            shadowOffsetY={5}
+            scaleX={1}
+            scaleY={1}
+          />
+          <PDFPageContents src="/test1.pdf" x="0" y="300" />
+          {lines.map((line, i) => (
             <Line
               key={i}
               points={line.points}
@@ -110,9 +147,9 @@ export default function Canvas(props) {
                 line.tool === 'eraser' ? 'destination-out' : 'source-over'
               }
             />
-        ))}
-      </Layer>
-    </ScrollableStage>
+          ))}
+        </Layer>
+      </ScrollableStage>
     </>
   );
 }
