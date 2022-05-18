@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Stage, Layer, Line, Star, Text } from "react-konva";
 import PDFPageContents from "./PDFPageContents";
 import HandTool from "./CanvasTools/Hand";
@@ -7,16 +7,16 @@ import "./Canvas.css";
 
 export default function Canvas(props) {
   const [tool, setTool] = React.useState('pen');
-  
+
   // pen
   const [lines, setLines] = React.useState([]);
   const isDrawing = React.useRef(false);
-  
+
   const toolmap = {
     'pen': PenTool(tool, lines, setLines, isDrawing),
     'drag': HandTool(),
   }
-  
+
   function handleStageWheel(e) {
     // prevent parent scrolling
     e.evt.preventDefault();
@@ -59,74 +59,74 @@ export default function Canvas(props) {
       handleScroll(e);
     }
   }
-  
+
   return (
     <>
-    <select
-      value={tool}
-      onChange={(e) => {
-        setTool(e.target.value);
-      }}
-    >
-      <option value="pen">Pen</option>
-      <option value="drag">Hand</option>
-    </select>
-    <Stage
-      id="canvas"
-      enabled={tool==="drag"}
-      width={window.innerWidth}
-      height={window.innerHeight}
-      draggable={toolmap[tool].canvasDraggable ? "draggable" : false}
-      onWheel={handleStageWheel}
-      onMouseDown={toolmap[tool].handleMouseDown}
-      onMouseMove={toolmap[tool].handleMouseMove}
-      onMouseUp={toolmap[tool].handleMouseUp}
-      onTouchStart={toolmap[tool].handleTouchStart}
-      onTouchMove={toolmap[tool].handleTouchMove}
-      onTouchEnd={toolmap[tool].handleTouchEnd}
-    >
-      <Layer>
-        <Text text="Try to draw on the canvas!" />
-        <Star
-          key={"A"}
-          id={1}
-          x={100}
-          y={100}
-          numPoints={5}
-          innerRadius={20}
-          outerRadius={40}
-          fill="#89b717"
-          opacity={0.8}
-          rotation={0}
-          shadowColor="black"
-          shadowBlur={10}
-          shadowOpacity={0.6}
-          shadowOffsetX={5}
-          shadowOffsetY={5}
-          scaleX={1}
-          scaleY={1}
-        />
-        <Star
-          key={"B"}
-          id={2}
-          x={300}
-          y={300}
-          numPoints={5}
-          innerRadius={20}
-          outerRadius={40}
-          fill="#aaf"
-          opacity={0.8}
-          rotation={30}
-          shadowColor="black"
-          shadowBlur={10}
-          shadowOpacity={0.6}
-          shadowOffsetX={5}
-          shadowOffsetY={5}
-          scaleX={1}
-          scaleY={1}
-        />
-        <PDFPageContents src="/test1.pdf" x="0" y="300" />
-        {lines.map((line, i) => (
+      <select
+        value={tool}
+        onChange={(e) => {
+          setTool(e.target.value);
+        }}
+      >
+        <option value="pen">Pen</option>
+        <option value="drag">Hand</option>
+      </select>
+      <Stage
+        id="canvas"
+        enabled={tool === "drag"}
+        width={window.innerWidth}
+        height={window.innerHeight}
+        draggable={toolmap[tool].canvasDraggable ? "draggable" : false}
+        onWheel={handleStageWheel}
+        onMouseDown={toolmap[tool].handleMouseDown}
+        onMouseMove={toolmap[tool].handleMouseMove}
+        onMouseUp={toolmap[tool].handleMouseUp}
+        onTouchStart={toolmap[tool].handleTouchStart}
+        onTouchMove={toolmap[tool].handleTouchMove}
+        onTouchEnd={toolmap[tool].handleTouchEnd}
+      >
+        <Layer>
+          <Text text="Try to draw on the canvas!" />
+          <Star
+            key={"A"}
+            id={1}
+            x={100}
+            y={100}
+            numPoints={5}
+            innerRadius={20}
+            outerRadius={40}
+            fill="#89b717"
+            opacity={0.8}
+            rotation={0}
+            shadowColor="black"
+            shadowBlur={10}
+            shadowOpacity={0.6}
+            shadowOffsetX={5}
+            shadowOffsetY={5}
+            scaleX={1}
+            scaleY={1}
+          />
+          <Star
+            key={"B"}
+            id={2}
+            x={300}
+            y={300}
+            numPoints={5}
+            innerRadius={20}
+            outerRadius={40}
+            fill="#aaf"
+            opacity={0.8}
+            rotation={30}
+            shadowColor="black"
+            shadowBlur={10}
+            shadowOpacity={0.6}
+            shadowOffsetX={5}
+            shadowOffsetY={5}
+            scaleX={1}
+            scaleY={1}
+          />
+          <PDFPageContents src="/test1.pdf" x="0" y="300" />
+          {lines.map((line, i) => (
             <Line
               key={i}
               points={line.points}
@@ -138,9 +138,9 @@ export default function Canvas(props) {
                 line.tool === 'eraser' ? 'destination-out' : 'source-over'
               }
             />
-        ))}
-      </Layer>
-    </Stage>
+          ))}
+        </Layer>
+      </Stage>
     </>
   );
 }

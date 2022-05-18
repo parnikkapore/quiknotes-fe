@@ -1,5 +1,3 @@
-import Konva from "konva";
-import React from "react";
 
 export default function PenTool(tool, lines, setLines, isDrawing) {
   function handleDown(e) {
