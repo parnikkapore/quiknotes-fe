@@ -139,10 +139,13 @@ export default function ScrollableCanvas(props) {
       id="canvas"
       width={window.innerWidth}
       height={window.innerHeight}
-      draggable
+      draggable={props.enabled ? "draggable" : false}
       onWheel={handleStageWheel}
       onTouchMove={handleStagePinchMove}
       onTouchEnd={handleStagePinchEnd}
+      onMouseDown={props.onMouseDown}
+      onMouseMove={props.onMouseMove}
+      onMouseUp={props.onMouseUp}
     >
       {props.children}
     </Stage>

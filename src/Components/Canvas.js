@@ -1,18 +1,64 @@
 import React from "react";
-import { Layer, Star, Text } from "react-konva";
+import { Layer, Line, Star, Text } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import PDFPageContents from "./PDFPageContents";
 import "./Canvas.css";
 
 export default function Canvas(props) {
+  // === Paint functionality =====
+  const [tool, setTool] = React.useState('pen');
+  const [lines, setLines] = React.useState([]);
+  const isDrawing = React.useRef(false);
+
+  const handleMouseDown = (e) => {
+    isDrawing.current = true;
+    const pos = e.target.getStage().getRelativePointerPosition();
+    setLines([...lines, { tool, points: [pos.x, pos.y] }]);
+  };
+
+  const handleMouseMove = (e) => {
+    // no drawing - skipping
+    if (!isDrawing.current) {
+      return;
+    }
+    
+    const stage = e.target.getStage();
+    const point = stage.getRelativePointerPosition();
+    let lastLine = lines[lines.length - 1];
+    // add point
+    lastLine.points = lastLine.points.concat([point.x, point.y]);
+
+    // replace last
+    lines.splice(lines.length - 1, 1, lastLine);
+    setLines(lines.concat());
+  };
+
+  const handleMouseUp = () => {
+    isDrawing.current = false;
+  };
+  
   return (
+    <>
+    <select
+      value={tool}
+      onChange={(e) => {
+        setTool(e.target.value);
+      }}
+    >
+      <option value="pen">Pen</option>
+      <option value="drag">Hand</option>
+    </select>
     <ScrollableStage
       id="canvas"
+      enabled={tool==="drag"}
       width={window.innerWidth}
       height={window.innerHeight}
+      onMouseDown={tool!=="drag" ? handleMouseDown : ()=>{}}
+      onMouseUp={tool!=="drag" ? handleMouseUp : ()=>{}}
+      onMouseMove={tool!=="drag" ? handleMouseMove : ()=>{}}
     >
       <Layer>
-        <Text text="Try to drag the canvas around" />
+        <Text text="Try to draw on the canvas!" />
         <Star
           key={"A"}
           id={1}
@@ -51,8 +97,22 @@ export default function Canvas(props) {
           scaleX={1}
           scaleY={1}
         />
-        <PDFPageContents src="/test1.pdf" x="0" y="400" />
+        <PDFPageContents src="/test1.pdf" x="0" y="300" />
+        {lines.map((line, i) => (
+            <Line
+              key={i}
+              points={line.points}
+              stroke="#df4b26"
+              strokeWidth={5}
+              tension={0.5}
+              lineCap="round"
+              globalCompositeOperation={
+                line.tool === 'eraser' ? 'destination-out' : 'source-over'
+              }
+            />
+        ))}
       </Layer>
     </ScrollableStage>
+    </>
   );
 }
