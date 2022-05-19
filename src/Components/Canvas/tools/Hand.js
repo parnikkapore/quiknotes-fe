@@ -8,25 +8,26 @@ import makeTool from "./template";
 Konva.hitOnDragEnabled = true;
 
 export default function HandTool() {
-  const distance = (p1, p2) => Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-  
+  const distance = (p1, p2) =>
+    Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+
   const center = (p1, p2) => ({
     x: (p1.x + p2.x) / 2,
     y: (p1.y + p2.y) / 2,
   });
-  
+
   let lastCenter = null;
   let lastDist = 0;
-  
+
   return makeTool({
     canvasDraggable: true,
-    
+
     handleTouchMove: (e) => {
       e.evt.preventDefault();
       var touch1 = e.evt.touches[0];
       var touch2 = e.evt.touches[1];
       const stage = e.currentTarget;
-      
+
       if (touch1 && touch2) {
         // if the stage was under Konva's drag&drop
         // we need to stop it, and implement our own pan logic with two pointers
@@ -81,10 +82,10 @@ export default function HandTool() {
         lastCenter = newCenter;
       }
     },
-    
+
     handleTouchEnd: (e) => {
       lastDist = 0;
       lastCenter = null;
     },
-  })
+  });
 }
