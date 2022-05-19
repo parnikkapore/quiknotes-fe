@@ -73,13 +73,17 @@ export default function Canvas(props) {
   // === Undo keyboard shortcut ====
 
   const handleKeyPress = useCallback((event) => {
-    // check if the Shift key is pressed
+    event.preventDefault();
     if (event.ctrlKey === true || event.metaKey === true) {
-      if (event.key === 'z'){
+      if (event.key === 'z') {
         handleUndo();
+      }
+      if (event.key === 'y') {
+        handleRedo();
       }
     }
   }, []);
+
 
   useEffect(() => {
     // attach the event listener
