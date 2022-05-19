@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { Layer, Line, Star } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import PDFPageContents from "./PDFPageContents";
@@ -69,6 +69,27 @@ export default function Canvas(props) {
     const next = history[historyStep];
     setLines(next);
   };
+
+  // === Undo keyboard shortcut ====
+
+  const handleKeyPress = useCallback((event) => {
+    // check if the Shift key is pressed
+    if (event.ctrlKey === true || event.metaKey === true) {
+      if (event.key == 'z'){
+        handleUndo();
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // attach the event listener
+    document.addEventListener('keydown', handleKeyPress);
+
+    // remove the event listener
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
 
   return (
     <>
