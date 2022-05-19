@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { Layer, Line, Star } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
-import PDFPageContents from "./PDFPageContents";
+import { emptyPDF, addPDFAsync } from "./pdfPage";
 import "./Canvas.css";
 
 // === For undo & redo =====
@@ -96,19 +96,11 @@ export default function Canvas(props) {
   
   // === File opening and saving =====
   
-  const [docPDF, setDocPDF] = React.useState("/test1.pdf");
+  const [docPDF, setDocPDF] = React.useState(emptyPDF);
+  React.useEffect(() => {addPDFAsync("/test1.pdf", setDocPDF);}, []);
   
   function handlePDFOpen(e) {
     const file = e.target.files[0];
-    
-    function readBlob(blob) {
-      return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.addEventListener('load', () => resolve(reader.result));
-          reader.addEventListener('error', reject)
-          reader.readAsDataURL(blob);
-      })
-    }
     
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -116,7 +108,7 @@ export default function Canvas(props) {
       historyStep = 0;
       setLines([]);
       
-      setDocPDF(e.target.result);
+      addPDFAsync(e.target.result, setDocPDF);
     }
     reader.readAsDataURL(file);
   }
@@ -139,9 +131,14 @@ export default function Canvas(props) {
     const oldAttrs = {...stage.getAttrs()};
     stage.position({x: 0, y: 0});
     stage.scale({x: 1, y: 1});
-    // stage.width = 
     
-    var dataURL = stage.toDataURL({ pixelRatio: 3 });
+    var dataURL = stage.toDataURL({
+      pixelRatio: 3,
+      x: 0,
+      y: 0,
+      width: docPDF.width,
+      height: docPDF.height,
+    });
     downloadURI(dataURL, 'export.png');
     
     stage.setAttrs(oldAttrs);
@@ -181,8 +178,8 @@ export default function Canvas(props) {
           <Star
             key={"A"}
             id={1}
-            x={900}
-            y={100}
+            x={100}
+            y={150}
             numPoints={5}
             innerRadius={20}
             outerRadius={40}
@@ -200,7 +197,7 @@ export default function Canvas(props) {
           <Star
             key={"B"}
             id={2}
-            x={1200}
+            x={300}
             y={500}
             numPoints={5}
             innerRadius={20}
@@ -216,7 +213,7 @@ export default function Canvas(props) {
             scaleX={1}
             scaleY={1}
           />
-          <PDFPageContents src={docPDF} x="0" y="0" />
+          {docPDF.render()}
           {lines.map((line, i) => (
             <Line
               key={i}
