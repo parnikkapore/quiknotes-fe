@@ -45,6 +45,7 @@ export default function Canvas(props) {
   const handleMouseUp = () => {
     isDrawing.current = false;
     // add to history
+    history = history.slice(0, historyStep + 1);
     history = history.concat([lines]);
     historyStep += 1;
   };
@@ -56,9 +57,7 @@ export default function Canvas(props) {
       return;
     }
     historyStep -= 1;
-    console.log(historyStep);
     const previous = history[historyStep];
-    console.log(previous);
     setLines(previous);
   };
 
@@ -67,9 +66,7 @@ export default function Canvas(props) {
       return;
     }
     historyStep += 1;
-    console.log(historyStep);
     const next = history[historyStep];
-    console.log(next);
     setLines(next);
   };
 
