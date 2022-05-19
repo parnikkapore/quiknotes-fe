@@ -75,7 +75,7 @@ export default function Canvas(props) {
   const handleKeyPress = useCallback((event) => {
     // check if the Shift key is pressed
     if (event.ctrlKey === true || event.metaKey === true) {
-      if (event.key == 'z'){
+      if (event.key === 'z'){
         handleUndo();
       }
     }
