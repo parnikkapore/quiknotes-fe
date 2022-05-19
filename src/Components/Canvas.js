@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { Layer, Line, Star } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import PDFPageContents from "./PDFPageContents";
@@ -70,6 +70,30 @@ export default function Canvas(props) {
     setLines(next);
   };
   
+  // === Undo keyboard shortcut ====
+
+  const handleKeyPress = useCallback((event) => {
+    event.preventDefault();
+    if (event.ctrlKey === true || event.metaKey === true) {
+      if (event.key === 'z'){
+        handleUndo();
+      }
+      if (event.key === 'y'){
+        handleRedo();
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // attach the event listener
+    document.addEventListener('keydown', handleKeyPress);
+
+    // remove the event listener
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
+  
   // === File opening and saving =====
   
   const [docPDF, setDocPDF] = React.useState("/test1.pdf");
@@ -120,9 +144,9 @@ export default function Canvas(props) {
     var dataURL = stage.toDataURL({ pixelRatio: 3 });
     downloadURI(dataURL, 'export.png');
     
-    console.log(oldAttrs);
     stage.setAttrs(oldAttrs);
   }
+  
   return (
     <>
       <select
