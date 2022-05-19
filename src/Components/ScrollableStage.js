@@ -2,7 +2,7 @@ import React from "react";
 import { Stage } from "react-konva";
 import Konva from "konva";
 
-export default function ScrollableCanvas(props) {
+function _ScrollableStage(props, ref) {
   const [handleStagePinchMove, handleStagePinchEnd] = (() => {
     // by default Konva prevent some events when node is dragging
     // it improve the performance and work well for 95% of cases
@@ -137,6 +137,7 @@ export default function ScrollableCanvas(props) {
   return (
     <Stage
       id="canvas"
+      ref={ref}
       width={window.innerWidth}
       height={window.innerHeight}
       draggable={props.enabled ? "draggable" : false}
@@ -151,3 +152,6 @@ export default function ScrollableCanvas(props) {
     </Stage>
   );
 }
+
+const ScrollableStage = React.forwardRef(_ScrollableStage);
+export default ScrollableStage;

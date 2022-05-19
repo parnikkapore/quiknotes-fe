@@ -69,7 +69,60 @@ export default function Canvas(props) {
     const next = history[historyStep];
     setLines(next);
   };
+  
+  // === File opening and saving =====
+  
+  const [docPDF, setDocPDF] = React.useState("/test1.pdf");
+  
+  function handlePDFOpen(e) {
+    const file = e.target.files[0];
+    
+    function readBlob(blob) {
+      return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.addEventListener('load', () => resolve(reader.result));
+          reader.addEventListener('error', reject)
+          reader.readAsDataURL(blob);
+      })
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      history = [[]];
+      historyStep = 0;
+      setLines([]);
+      
+      setDocPDF(e.target.result);
+    }
+    reader.readAsDataURL(file);
+  }
 
+  const the_canvas = React.useRef(null);
+  
+  function handleExportImage(e) {
+    // https://stackoverflow.com/a/15832662/512042
+    function downloadURI(uri, name) {
+      var link = document.createElement('a');
+      link.download = name;
+      link.href = uri;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    const stage = the_canvas.current;
+    
+    const oldAttrs = {...stage.getAttrs()};
+    stage.position({x: 0, y: 0});
+    stage.scale({x: 1, y: 1});
+    // stage.width = 
+    
+    var dataURL = stage.toDataURL({ pixelRatio: 3 });
+    downloadURI(dataURL, 'export.png');
+    
+    console.log(oldAttrs);
+    stage.setAttrs(oldAttrs);
+  }
   return (
     <>
       <select
@@ -83,8 +136,16 @@ export default function Canvas(props) {
       </select>
       <button onClick={handleUndo}>undo</button>
       <button onClick={handleRedo}>redo</button>
+      <span>
+        <span>{"Open PDF: "}</span>
+        <input type="file" accept="application/pdf" onChange={handlePDFOpen}></input>
+      </span>
+      <span>
+        <button onClick={handleExportImage}>Export as image</button>
+      </span>
       <ScrollableStage
         id="canvas"
+        ref={the_canvas}
         enabled={tool === "drag"}
         width={window.innerWidth}
         height={window.innerHeight}
@@ -96,7 +157,7 @@ export default function Canvas(props) {
           <Star
             key={"A"}
             id={1}
-            x={100}
+            x={900}
             y={100}
             numPoints={5}
             innerRadius={20}
@@ -115,8 +176,8 @@ export default function Canvas(props) {
           <Star
             key={"B"}
             id={2}
-            x={300}
-            y={300}
+            x={1200}
+            y={500}
             numPoints={5}
             innerRadius={20}
             outerRadius={40}
@@ -131,7 +192,7 @@ export default function Canvas(props) {
             scaleX={1}
             scaleY={1}
           />
-          <PDFPageContents src="/test1.pdf" x="0" y="300" />
+          <PDFPageContents src={docPDF} x="0" y="0" />
           {lines.map((line, i) => (
             <Line
               key={i}
