@@ -1,7 +1,10 @@
 import Konva from "konva";
 import React from "react";
+import makeTool from "./template";
 
-export default function PenTool(tool, lines, setLines, isDrawing) {
+export default function PenTool(tool, lines, setLines) {
+  const isDrawing = React.useRef(false);
+  
   function handleDown(e) {
     isDrawing.current = true;
     const pos = e.target.getStage().getRelativePointerPosition();
@@ -31,7 +34,7 @@ export default function PenTool(tool, lines, setLines, isDrawing) {
     isDrawing.current = false;
   };
   
-  return {
+  return makeTool({
     canvasDraggable: false,
     
     handleTouchStart: handleDown,
@@ -41,5 +44,5 @@ export default function PenTool(tool, lines, setLines, isDrawing) {
     handleMouseDown: handleDown,
     handleMouseMove: handleMove,
     handleMouseUp: handleUp,
-  }
+  });
 }

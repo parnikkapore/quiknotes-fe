@@ -1,4 +1,5 @@
 import Konva from "konva";
+import makeTool from "./template";
 
 // by default Konva prevent some events when node is dragging
 // it improve the performance and work well for 95% of cases
@@ -17,10 +18,8 @@ export default function HandTool() {
   let lastCenter = null;
   let lastDist = 0;
   
-  return {
+  return makeTool({
     canvasDraggable: true,
-    
-    handleTouchStart: () => {},
     
     handleTouchMove: (e) => {
       e.evt.preventDefault();
@@ -87,9 +86,5 @@ export default function HandTool() {
       lastDist = 0;
       lastCenter = null;
     },
-    
-    handleMouseDown: () => {},
-    handleMouseMove: () => {},
-    handleMouseUp: () => {},
-  }
+  })
 }

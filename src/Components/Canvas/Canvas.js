@@ -1,27 +1,24 @@
 import React, { useEffect } from "react";
 import { Stage, Layer, Line, Star, Text } from "react-konva";
 import PDFPageContents from "./PDFPageContents";
-import HandTool from "./CanvasTools/Hand";
-import PenTool from "./CanvasTools/Pen";
+import HandTool from "./tools/Hand";
+import PenTool from "./tools/Pen";
 import "./Canvas.css";
 
 export default function Canvas(props) {
   const [tool, setTool] = React.useState('pen');
-  
-  // pen
   const [lines, setLines] = React.useState([]);
-  const isDrawing = React.useRef(false);
   
   const toolmap = {
-    'pen': PenTool(tool, lines, setLines, isDrawing),
+    'pen': PenTool(tool, lines, setLines),
     'drag': HandTool(),
-  }
+  };
   
   function handleStageWheel(e) {
     // prevent parent scrolling
     e.evt.preventDefault();
+    
     const stage = e.currentTarget;
-    // console.log(stage);
 
     function handleZoom(e) {
       const scaleBy = 1.02;
