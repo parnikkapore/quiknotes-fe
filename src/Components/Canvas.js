@@ -21,7 +21,7 @@ export default function Canvas(props) {
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getRelativePointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y] }]);
+    setLines([...lines, { tool, points: [pos.x, pos.y, pos.x, pos.y] }]);
   };
 
   const handleMouseMove = (e) => {
