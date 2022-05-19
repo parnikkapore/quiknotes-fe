@@ -12,13 +12,13 @@ const pdfTemplate = {
   height: 0,
   render() {
     return <Image x={this.xpos} y={this.ypos} image={this.image} />;
-  }
-}
+  },
+};
 
 export const emptyPDF = pdfTemplate;
 
-export function addPDFAsync(url, setDoc, xpos=0, ypos=0) {
-  const result = Object.assign(Object.create(pdfTemplate), {xpos, ypos});
+export function addPDFAsync(url, setDoc, xpos = 0, ypos = 0) {
+  const result = Object.assign(Object.create(pdfTemplate), { xpos, ypos });
   const loadingTask = pdfjs.getDocument(url);
   loadingTask.promise.then(
     (pdf) => {

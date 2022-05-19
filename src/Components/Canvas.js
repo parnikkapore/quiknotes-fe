@@ -6,15 +6,13 @@ import "./Canvas.css";
 
 // === For undo & redo =====
 
-let history = [
-  [],
-];
+let history = [[]];
 let historyStep = 0;
 
 export default function Canvas(props) {
   // === Paint functionality =====
 
-  const [tool, setTool] = React.useState('pen');
+  const [tool, setTool] = React.useState("pen");
   const [lines, setLines] = React.useState([]);
   const isDrawing = React.useRef(false);
 
@@ -39,7 +37,6 @@ export default function Canvas(props) {
     // replace last
     lines.splice(lines.length - 1, 1, lastLine);
     setLines(lines.concat());
-
   };
 
   const handleMouseUp = () => {
@@ -69,16 +66,16 @@ export default function Canvas(props) {
     const next = history[historyStep];
     setLines(next);
   };
-  
+
   // === Undo keyboard shortcut ====
 
   const handleKeyPress = useCallback((event) => {
     event.preventDefault();
     if (event.ctrlKey === true || event.metaKey === true) {
-      if (event.key === 'z'){
+      if (event.key === "z") {
         handleUndo();
       }
-      if (event.key === 'y'){
+      if (event.key === "y") {
         handleRedo();
       }
     }
@@ -86,52 +83,54 @@ export default function Canvas(props) {
 
   useEffect(() => {
     // attach the event listener
-    document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener("keydown", handleKeyPress);
 
     // remove the event listener
     return () => {
-      document.removeEventListener('keydown', handleKeyPress);
+      document.removeEventListener("keydown", handleKeyPress);
     };
   }, [handleKeyPress]);
-  
+
   // === File opening and saving =====
-  
+
   const [docPDF, setDocPDF] = React.useState(emptyPDF);
-  React.useEffect(() => {addPDFAsync("/test1.pdf", setDocPDF);}, []);
-  
+  React.useEffect(() => {
+    addPDFAsync("/test1.pdf", setDocPDF);
+  }, []);
+
   function handlePDFOpen(e) {
     const file = e.target.files[0];
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       history = [[]];
       historyStep = 0;
       setLines([]);
-      
+
       addPDFAsync(e.target.result, setDocPDF);
-    }
+    };
     reader.readAsDataURL(file);
   }
 
   const the_canvas = React.useRef(null);
-  
+
   function handleExportImage(e) {
     // https://stackoverflow.com/a/15832662/512042
     function downloadURI(uri, name) {
-      var link = document.createElement('a');
+      var link = document.createElement("a");
       link.download = name;
       link.href = uri;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
-    
+
     const stage = the_canvas.current;
-    
-    const oldAttrs = {...stage.getAttrs()};
-    stage.position({x: 0, y: 0});
-    stage.scale({x: 1, y: 1});
-    
+
+    const oldAttrs = { ...stage.getAttrs() };
+    stage.position({ x: 0, y: 0 });
+    stage.scale({ x: 1, y: 1 });
+
     var dataURL = stage.toDataURL({
       pixelRatio: 3,
       x: 0,
@@ -139,11 +138,11 @@ export default function Canvas(props) {
       width: docPDF.width,
       height: docPDF.height,
     });
-    downloadURI(dataURL, 'export.png');
-    
+    downloadURI(dataURL, "export.png");
+
     stage.setAttrs(oldAttrs);
   }
-  
+
   return (
     <>
       <select
@@ -159,7 +158,11 @@ export default function Canvas(props) {
       <button onClick={handleRedo}>redo</button>
       <span>
         <span>{"Open PDF: "}</span>
-        <input type="file" accept="application/pdf" onChange={handlePDFOpen}></input>
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={handlePDFOpen}
+        ></input>
       </span>
       <span>
         <button onClick={handleExportImage}>Export as image</button>
@@ -170,9 +173,9 @@ export default function Canvas(props) {
         enabled={tool === "drag"}
         width={window.innerWidth}
         height={window.innerHeight}
-        onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-        onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-        onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+        onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+        onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+        onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
       >
         <Layer>
           <Star
@@ -223,7 +226,7 @@ export default function Canvas(props) {
               tension={0.5}
               lineCap="round"
               globalCompositeOperation={
-                line.tool === 'eraser' ? 'destination-out' : 'source-over'
+                line.tool === "eraser" ? "destination-out" : "source-over"
               }
             />
           ))}
