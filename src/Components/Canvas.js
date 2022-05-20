@@ -96,7 +96,7 @@ export default function Canvas(props) {
   const [docURL, setDocURL] = React.useState("/test1.pdf");
   const docPDF = usePDFRenderer(docURL);
 
-  const handlePDFOpen = useCallback((e) => {
+  function handlePDFOpen(e) {
     const file = e.target.files[0];
 
     const reader = new FileReader();
@@ -108,7 +108,7 @@ export default function Canvas(props) {
       setDocURL(e.target.result);
     };
     reader.readAsDataURL(file);
-  });
+  }
 
   const the_stage = React.useRef(null);
 
@@ -145,10 +145,13 @@ export default function Canvas(props) {
 
   const stage_container = React.useRef(null);
 
-  const handleResize = React.useCallback((e) => {
-    the_stage.current.width(stage_container.current.offsetWidth);
-    the_stage.current.height(stage_container.current.offsetHeight);
-  });
+  const handleResize = React.useCallback(
+    (e) => {
+      the_stage.current.width(stage_container.current.offsetWidth);
+      the_stage.current.height(stage_container.current.offsetHeight);
+    },
+    [the_stage, stage_container]
+  );
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
