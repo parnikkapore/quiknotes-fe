@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { Layer, Line, Star } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
-import { emptyPDF, addPDFAsync } from "./pdfPage";
+import { usePDFRenderer } from "./pdfPage";
 import "./Canvas.css";
 
 // === For undo & redo =====
@@ -93,10 +93,8 @@ export default function Canvas(props) {
 
   // === File opening and saving =====
 
-  const [docPDF, setDocPDF] = React.useState(emptyPDF);
-  React.useEffect(() => {
-    addPDFAsync("/test1.pdf", setDocPDF);
-  }, []);
+  const [docURL, setDocURL] = React.useState("/test1.pdf");
+  const docPDF = usePDFRenderer(docURL);
 
   function handlePDFOpen(e) {
     const file = e.target.files[0];
@@ -107,7 +105,7 @@ export default function Canvas(props) {
       historyStep = 0;
       setLines([]);
 
-      addPDFAsync(e.target.result, setDocPDF);
+      setDocURL(e.target.result);
     };
     reader.readAsDataURL(file);
   }
@@ -180,7 +178,7 @@ export default function Canvas(props) {
         <Layer>
           <Star
             key={"A"}
-            id={1}
+            id="1"
             x={100}
             y={150}
             numPoints={5}
@@ -199,7 +197,7 @@ export default function Canvas(props) {
           />
           <Star
             key={"B"}
-            id={2}
+            id="2"
             x={300}
             y={500}
             numPoints={5}

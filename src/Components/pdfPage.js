@@ -59,3 +59,9 @@ export function addPDFAsync(url, setDoc, xpos = 0, ypos = 0) {
     }
   );
 }
+
+export function usePDFRenderer(pdfURL) {
+  const [pdfDoc, setPDFDoc] = React.useState(pdfTemplate);
+  React.useEffect(() => addPDFAsync(pdfURL, setPDFDoc), [pdfURL]);
+  return pdfDoc;
+}
