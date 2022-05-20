@@ -70,13 +70,17 @@ export default function Canvas(props) {
   // === Undo keyboard shortcut ====
 
   const handleKeyPress = useCallback((event) => {
-    event.preventDefault();
     if (event.ctrlKey === true || event.metaKey === true) {
-      if (event.key === "z") {
-        handleUndo();
-      }
-      if (event.key === "y") {
-        handleRedo();
+      switch (event.key) {
+        case "z":
+          event.preventDefault();
+          handleUndo();
+          break;
+        case "y":
+        case "Z":
+          event.preventDefault();
+          handleRedo();
+          break;
       }
     }
   }, []);
