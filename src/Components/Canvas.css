@@ -1,3 +1,25 @@
 .konvajs-content {
   background: #eff;
 }
+
+#canvas {
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+}
+
+#toolbar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: 8px;
+}
+
+#stage-container {
+  height: 0;
+  flex-grow: 1;
+}

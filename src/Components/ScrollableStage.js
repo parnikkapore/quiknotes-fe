@@ -138,8 +138,8 @@ function _ScrollableStage(props, ref) {
     <Stage
       id="canvas"
       ref={ref}
-      width={window.innerWidth}
-      height={window.innerHeight}
+      width={10}
+      height={10}
       draggable={props.enabled ? "draggable" : false}
       onWheel={handleStageWheel}
       onTouchMove={handleStagePinchMove}
