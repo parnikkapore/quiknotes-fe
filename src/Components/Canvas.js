@@ -71,7 +71,6 @@ export default function Canvas(props) {
 
   const handleKeyPress = useCallback((event) => {
     if (event.ctrlKey === true || event.metaKey === true) {
-      // eslint-disable-next-line
       switch (event.key) {
         case "z":
           event.preventDefault();
@@ -81,6 +80,9 @@ export default function Canvas(props) {
         case "Z":
           event.preventDefault();
           handleRedo();
+          break;
+        default:
+          // Do nothing
           break;
       }
     }
