@@ -200,6 +200,9 @@ export default function Canvas(props) {
           enabled={tool === "drag"}
           width={window.innerWidth}
           height={window.innerHeight}
+          onTouchStart={handleMouseDown}
+          onTouchMove={handleMouseMove}
+          onTouchEnd={handleMouseUp}
           onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
           onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
           onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
