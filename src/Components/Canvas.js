@@ -40,17 +40,22 @@ export default function Canvas(props) {
 
   const handleMouseUp = () => {
     isDrawing.current = false;
-    
+    let newLines = lines;
+
     // if there's only one point, dupe it so it draws properly
     const lastLine = lines[lines.length - 1];
     if (lastLine.points.length === 2) {
-      lastLine.points = lastLine.points.concat(lastLine.points);
-      setLines(lines.slice(0, -1).concat(lastLine));
+      newLines = lines.slice(0, -1);
+      newLines.push({
+        ...lastLine,
+        points: lastLine.points.concat(lastLine.points),
+      });
+      setLines(newLines);
     }
-    
+
     // add to history
     history = history.slice(0, historyStep + 1);
-    history = history.concat([lines]);
+    history = history.concat([newLines]);
     historyStep += 1;
   };
 
