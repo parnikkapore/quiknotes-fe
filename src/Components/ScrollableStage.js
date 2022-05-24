@@ -126,10 +126,21 @@ function _ScrollableStage(props, ref) {
 
       stage.position({ x, y });
     }
+    
+    function handleHorizontalScroll(e) {
+      const dy = e.evt.deltaY;
+
+      const x = stage.x() - dy;
+      const y = stage.y();
+
+      stage.position({ x, y });
+    }
 
     if (e.evt.ctrlKey) {
       handleZoom(e);
-    } else {
+    } else if (e.evt.shiftKey) {
+      handleHorizontalScroll(e);
+    } else{
       handleScroll(e);
     }
   }
