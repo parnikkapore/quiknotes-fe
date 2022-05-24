@@ -19,7 +19,7 @@ export default function Canvas(props) {
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getRelativePointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y, pos.x, pos.y] }]);
+    setLines([...lines, { tool, points: [pos.x, pos.y] }]);
   };
 
   const handleMouseMove = (e) => {
@@ -35,12 +35,19 @@ export default function Canvas(props) {
     lastLine.points = lastLine.points.concat([point.x, point.y]);
 
     // replace last
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());
+    setLines(lines.slice(0, -1).concat(lastLine));
   };
 
   const handleMouseUp = () => {
     isDrawing.current = false;
+    
+    // if there's only one point, dupe it so it draws properly
+    const lastLine = lines[lines.length - 1];
+    if (lastLine.points.length === 2) {
+      lastLine.points = lastLine.points.concat(lastLine.points);
+      setLines(lines.slice(0, -1).concat(lastLine));
+    }
+    
     // add to history
     history = history.slice(0, historyStep + 1);
     history = history.concat([lines]);
