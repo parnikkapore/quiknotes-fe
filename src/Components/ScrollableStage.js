@@ -2,7 +2,7 @@ import React from "react";
 import { Stage } from "react-konva";
 import Konva from "konva";
 
-export default function ScrollableCanvas(props) {
+function _ScrollableStage(props, ref) {
   const [handleStagePinchMove, handleStagePinchEnd] = (() => {
     // by default Konva prevent some events when node is dragging
     // it improve the performance and work well for 95% of cases
@@ -127,8 +127,19 @@ export default function ScrollableCanvas(props) {
       stage.position({ x, y });
     }
 
+    function handleHorizontalScroll(e) {
+      const dy = e.evt.deltaY;
+
+      const x = stage.x() - dy;
+      const y = stage.y();
+
+      stage.position({ x, y });
+    }
+
     if (e.evt.ctrlKey) {
       handleZoom(e);
+    } else if (e.evt.shiftKey) {
+      handleHorizontalScroll(e);
     } else {
       handleScroll(e);
     }
@@ -137,12 +148,14 @@ export default function ScrollableCanvas(props) {
   return (
     <Stage
       id="canvas"
-      width={window.innerWidth}
-      height={window.innerHeight}
+      ref={ref}
+      width={10}
+      height={10}
       draggable={props.enabled ? "draggable" : false}
       onWheel={handleStageWheel}
-      onTouchMove={handleStagePinchMove}
-      onTouchEnd={handleStagePinchEnd}
+      onTouchStart={props.enabled ? () => {} : props.onTouchStart}
+      onTouchMove={props.enabled ? handleStagePinchMove : props.onTouchMove}
+      onTouchEnd={props.enabled ? handleStagePinchEnd : props.onTouchEnd}
       onMouseDown={props.onMouseDown}
       onMouseMove={props.onMouseMove}
       onMouseUp={props.onMouseUp}
@@ -151,3 +164,6 @@ export default function ScrollableCanvas(props) {
     </Stage>
   );
 }
+
+const ScrollableStage = React.forwardRef(_ScrollableStage);
+export default ScrollableStage;
