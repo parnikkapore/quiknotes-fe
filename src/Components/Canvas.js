@@ -97,7 +97,8 @@ export default function Canvas(props) {
         default:
           // Do nothing
           break;
-
+      }
+    }
   }, []);
 
 
