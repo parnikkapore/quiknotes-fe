@@ -1,4 +1,3 @@
-# quiknotes-fe
+# Creative Noters
 
-A fast and painless PDF annotation [web app](https://creative-noters.vercel.app).
-
+A simple, intuitive, and frictionless [web app](https://creativenoters.vercel.app) for annotating on images and documents.
