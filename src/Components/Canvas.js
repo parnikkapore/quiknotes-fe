@@ -82,6 +82,7 @@ export default function Canvas(props) {
   // === Undo keyboard shortcut ====
 
   const handleKeyPress = useCallback((event) => {
+
     if (event.ctrlKey === true || event.metaKey === true) {
       switch (event.key) {
         case "z":
@@ -96,9 +97,9 @@ export default function Canvas(props) {
         default:
           // Do nothing
           break;
-      }
-    }
+
   }, []);
+
 
   useEffect(() => {
     // attach the event listener
