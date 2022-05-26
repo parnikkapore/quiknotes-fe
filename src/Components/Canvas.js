@@ -128,7 +128,7 @@ export default function Canvas(props) {
 
       setDocURL(e.target.result);
     };
-    reader.readAsDataURL(file);
+    reader.readAsArrayBuffer(file);
   }
 
   const the_stage = React.useRef(null);
