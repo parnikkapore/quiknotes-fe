@@ -39,6 +39,10 @@ export default function Canvas(props) {
   };
 
   const handleMouseUp = () => {
+    if (isDrawing.current === false) {
+      return;
+    }
+    
     isDrawing.current = false;
     let newLines = lines;
 
