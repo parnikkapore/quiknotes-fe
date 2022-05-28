@@ -136,7 +136,7 @@ function _ScrollableStage(props, ref) {
       stage.position({ x, y });
     }
 
-    if (e.evt.ctrlKey) {
+    if (e.evt.ctrlKey || e.evt.metaKey) {
       handleZoom(e);
     } else if (e.evt.shiftKey) {
       handleHorizontalScroll(e);
