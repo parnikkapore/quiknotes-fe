@@ -2,7 +2,9 @@ import React, { useCallback, useEffect } from "react";
 import { Layer, Line, Star } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import { usePDFRenderer } from "./pdfPage";
+import { useAuth } from ".././hooks/useAuth";
 import "./Canvas.css";
+
 
 // === For undo & redo =====
 
@@ -10,6 +12,10 @@ let history = [[]];
 let historyStep = 0;
 
 export default function Canvas(props) {
+
+  //Sign in with Google
+  const { signInWithGoogle } = useAuth();
+
   // === Paint functionality =====
 
   const [tool, setTool] = React.useState("pen");
@@ -42,7 +48,7 @@ export default function Canvas(props) {
     if (isDrawing.current === false) {
       return;
     }
-    
+
     isDrawing.current = false;
     let newLines = lines;
 
@@ -200,6 +206,7 @@ export default function Canvas(props) {
         </select>
         <button onClick={handleUndo}>undo</button>
         <button onClick={handleRedo}>redo</button>
+        <button onClick={signInWithGoogle}>Sign in with Google</button>
         <span>
           <span>{"Open PDF: "}</span>
           <input
@@ -221,9 +228,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
         >
           <Layer>
             <Star
