@@ -2,14 +2,10 @@ import React, { useCallback, useEffect } from "react";
 import { Layer, Line, Star } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import { usePDFRenderer } from "./pdfPage";
-import Button from "@mui/material/Button";
-import Select from '@mui/material/Select';
+import {Button, Select, IconButton, MenuItem, Input} from "@mui/material";
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
-import IconButton from '@mui/material/IconButton';
-import MenuItem from '@mui/material/MenuItem';
 import IosShareIcon from '@mui/icons-material/IosShare';
-import Input from '@mui/material/Input';
 import "./Canvas.css";
 
 
