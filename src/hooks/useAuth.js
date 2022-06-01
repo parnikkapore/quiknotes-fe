@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, signInWithRedirect, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import React, { useState, useEffect, useContext, createContext } from "react";
 import { config as firebaseConfig } from "../config/firebaseConfig.js";
@@ -77,7 +77,7 @@ function useProvideAuth() {
   };
 
   const signInWithGoogle = () => {
-    return signInWithPopup(firebaseAuth, googleAuthProvider);
+    return signInWithRedirect(firebaseAuth, googleAuthProvider);
   };
 
   // Subscribe to user on mount
