@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import CssBaseline from "@material-ui/core/CssBaseline";
+import CssBaseline from '@mui/material/CssBaseline';
 import { ProvideAuth } from "./hooks/useAuth";
 import App from "./App";
 

@@ -2,7 +2,14 @@ import React, { useCallback, useEffect } from "react";
 import { Layer, Line, Star } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import { usePDFRenderer } from "./pdfPage";
-import { useAuth } from ".././hooks/useAuth";
+import Button from "@mui/material/Button";
+import Select from '@mui/material/Select';
+import UndoIcon from '@mui/icons-material/Undo';
+import RedoIcon from '@mui/icons-material/Redo';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
+import IosShareIcon from '@mui/icons-material/IosShare';
+import Input from '@mui/material/Input';
 import "./Canvas.css";
 
 
@@ -12,9 +19,6 @@ let history = [[]];
 let historyStep = 0;
 
 export default function Canvas(props) {
-
-  //Sign in with Google
-  const { signInWithGoogle } = useAuth();
 
   // === Paint functionality =====
 
@@ -195,28 +199,32 @@ export default function Canvas(props) {
   return (
     <div id="canvas">
       <div id="toolbar">
-        <select
+        <Select
           value={tool}
+          label="Tool"
           onChange={(e) => {
             setTool(e.target.value);
           }}
         >
-          <option value="pen">Pen</option>
-          <option value="drag">Hand</option>
-        </select>
-        <button onClick={handleUndo}>undo</button>
-        <button onClick={handleRedo}>redo</button>
-        <button onClick={signInWithGoogle}>Sign in with Google</button>
+          <MenuItem value="pen">Pen</MenuItem>
+          <MenuItem value="drag">Hand</MenuItem>
+        </Select>
+        <IconButton aria-label="Undo" onClick={handleUndo}>
+          <UndoIcon />
+        </IconButton>
+        <IconButton aria-label="Redo" onClick={handleRedo}>
+          <RedoIcon />
+        </IconButton>
         <span>
           <span>{"Open PDF: "}</span>
-          <input
+          <Input
             type="file"
             accept="application/pdf"
             onChange={handlePDFOpen}
-          ></input>
+          ></Input>
         </span>
         <span>
-          <button onClick={handleExportImage}>Export as image</button>
+          <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>Export as image</Button>
         </span>
       </div>
       <div id="stage-container" ref={stage_container}>
