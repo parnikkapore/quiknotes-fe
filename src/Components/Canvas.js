@@ -265,7 +265,7 @@ export default function Canvas(props) {
               scaleX={1}
               scaleY={1}
             />
-            {doc.pages[0].render()}
+            {doc.pages.map((page) => page.render())}
             {lines.map((line, i) => (
               <Line
                 key={i}

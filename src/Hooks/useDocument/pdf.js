@@ -13,7 +13,12 @@ const pdfPageTemplate = {
   image: {},
   render() {
     return this.image ? (
-      <Image x={this.xpos} y={this.ypos} image={this.image[1]} />
+      <Image
+        key={`${this.name}-${this.xpos}-${this.ypos}`}
+        x={this.xpos}
+        y={this.ypos}
+        image={this.image[1]}
+      />
     ) : (
       <></>
     );
@@ -28,9 +33,7 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
   const pagesP = await docP.then((pdf) => {
     console.log("PDF loaded");
 
-    // Fetch the first page
-    const pageNumber = 1;
-    return [pdf.getPage(pageNumber)];
+    return Array.from(Array(pdf.numPages), (_, i) => pdf.getPage(i + 1));
   });
 
   const parsedPagesP = pagesP.map((pageP) =>
@@ -51,7 +54,8 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
 
   const locatedPagesP = parsedPagesP.map((pageP) =>
     pageP.then((page) => {
-      return { ...page, xpos: 0, ypos: 0 };
+      const xofs = Math.random() * 500;
+      return { ...page, xpos: xofs, ypos: 0 };
     })
   );
 
