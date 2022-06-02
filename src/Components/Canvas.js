@@ -116,7 +116,10 @@ export default function Canvas(props) {
 
   // === File opening and saving =====
 
-  const [docInfo, setDocInfo] = React.useState({name: "Test PDF", url: "/test1.pdf"});
+  const [docInfo, setDocInfo] = React.useState({
+    name: "Test PDF",
+    url: "/test1.pdf",
+  });
   const doc = useDocument(docInfo);
 
   function handlePDFOpen(e) {
@@ -128,7 +131,7 @@ export default function Canvas(props) {
       historyStep = 0;
       setLines([]);
 
-      setDocInfo({name: "Uploaded", url: e.target.result});
+      setDocInfo({ name: "Uploaded", url: e.target.result });
     };
     reader.readAsArrayBuffer(file);
   }
