@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { Layer, Line, Star } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
-import { usePDFRenderer } from "./pdfPage";
+import useDocument from "../Hooks/useDocument";
 import "./Canvas.css";
 
 // === For undo & redo =====
@@ -116,8 +116,8 @@ export default function Canvas(props) {
 
   // === File opening and saving =====
 
-  const [docURL, setDocURL] = React.useState("/test1.pdf");
-  const docPDF = usePDFRenderer(docURL);
+  const [docInfo, setDocInfo] = React.useState({name: "Test PDF", url: "/test1.pdf"});
+  const doc = useDocument(docInfo);
 
   function handlePDFOpen(e) {
     const file = e.target.files[0];
@@ -128,7 +128,7 @@ export default function Canvas(props) {
       historyStep = 0;
       setLines([]);
 
-      setDocURL(e.target.result);
+      setDocInfo({name: "Uploaded", url: e.target.result});
     };
     reader.readAsArrayBuffer(file);
   }
@@ -156,8 +156,8 @@ export default function Canvas(props) {
       pixelRatio: 3,
       x: 0,
       y: 0,
-      width: docPDF.width,
-      height: docPDF.height,
+      width: doc.pages[0].width,
+      height: doc.pages[0].height,
     });
     downloadURI(dataURL, "export.png");
 
@@ -262,7 +262,7 @@ export default function Canvas(props) {
               scaleX={1}
               scaleY={1}
             />
-            {docPDF.render()}
+            {doc.pages[0].render()}
             {lines.map((line, i) => (
               <Line
                 key={i}
