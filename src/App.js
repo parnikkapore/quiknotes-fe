@@ -4,6 +4,7 @@ import { useAuth } from "./hooks/useAuth";
 import { useState } from "react";
 import { AppBar, Toolbar, Typography, IconButton, MenuItem, Menu } from "@mui/material";
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import { useNavigate } from "react-router-dom";
 import "./App.css";
 
 function App() {
@@ -19,6 +20,7 @@ export default App;
 function AppShell() {
   const { user, signout } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     handleClose();
@@ -32,6 +34,11 @@ function AppShell() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleProfile = () => {
+    handleClose();
+    navigate("/Profile");
+  }
 
   return (
     <AppBar position="static">
@@ -70,7 +77,7 @@ function AppShell() {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
+              <MenuItem onClick={handleProfile}>Profile</MenuItem>
               <MenuItem onClick={handleClose}>My account</MenuItem>
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </Menu>
