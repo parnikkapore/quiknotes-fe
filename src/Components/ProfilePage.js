@@ -142,7 +142,6 @@ function AppShell() {
                 onClose={handleClose}
               >
                 <MenuItem onClick={handleProfile}>Canvas</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
                 <MenuItem onClick={handleLogout}>Log out</MenuItem>
               </Menu>
             </div>
