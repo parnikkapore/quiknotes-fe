@@ -52,12 +52,30 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
     })
   );
 
-  const locatedPagesP = parsedPagesP.map((pageP) =>
-    pageP.then((page) => {
-      const xofs = Math.random() * 500;
-      return { ...page, xpos: xofs, ypos: 0 };
-    })
+  // Sets the x and y positions of the pages. The x position is always 0, while
+  // the Y position is 0 for the first page and MARGIN pixels below the last
+  // page's bottom for the remaining.
+  //
+  // All this is accomplished via an ungodly chain of promises.
+
+  const locatedPagesP = [];
+  const MARGIN = 16;
+  locatedPagesP.push(
+    parsedPagesP[0].then((page) => ({ ...page, xpos: 0, ypos: 0 }))
   );
+  for (let i = 1; i < parsedPagesP.length; i++) {
+    locatedPagesP.push(
+      Promise.all([locatedPagesP[i - 1], parsedPagesP[i]]).then(
+        ([last, now]) => {
+          return {
+            ...now,
+            xpos: last.xpos,
+            ypos: last.ypos + last.height + MARGIN,
+          };
+        }
+      )
+    );
+  }
 
   const renderedPagesP = locatedPagesP.map((pageP) =>
     pageP.then(async (page) => {
@@ -92,7 +110,7 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
         image: { 1: pageInfo.image },
       })
     );
-    console.log("Page rendered");
+    console.log("Pages rendered");
     setDoc({
       name: name,
       pages: pages,
