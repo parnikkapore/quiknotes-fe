@@ -11,13 +11,14 @@ const pdfPageTemplate = {
   width: 0,
   height: 0,
   image: {},
-  render() {
-    return this.image ? (
+  render(props) {
+    const page = props.page;
+    return page.image ? (
       <Image
-        key={`${this.name}-${this.xpos}-${this.ypos}`}
-        x={this.xpos}
-        y={this.ypos}
-        image={this.image[1]}
+        key={`${page.name}-${page.xpos}-${page.ypos}`}
+        x={page.xpos}
+        y={page.ypos}
+        image={page.image[1]}
       />
     ) : (
       <></>
