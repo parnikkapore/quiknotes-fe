@@ -118,6 +118,7 @@ export default function Canvas(props) {
 
   const [docInfo, setDocInfo] = React.useState({
     name: "Test PDF",
+    type: "application/pdf",
     url: "/test1.pdf",
   });
   const doc = useDocument(docInfo);
@@ -125,18 +126,15 @@ export default function Canvas(props) {
   function handlePDFOpen(e) {
     const file = e.target.files[0];
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      history = [[]];
-      historyStep = 0;
-      setLines([]);
+    history = [[]];
+    historyStep = 0;
+    setLines([]);
 
-      setDocInfo({
-        name: file.name.replace(/\.[^/.]+$/, ""),
-        url: e.target.result,
-      });
-    };
-    reader.readAsArrayBuffer(file);
+    setDocInfo({
+      name: file.name.replace(/\.[^/.]+$/, ""),
+      type: file.type,
+      url: URL.createObjectURL(file),
+    });
   }
 
   const the_stage = React.useRef(null);

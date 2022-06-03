@@ -6,10 +6,11 @@ export default function useDocument(docInfo) {
 
   function onUpdate(docInfo) {
     addPDFAsync(docInfo.url, setDoc, docInfo.name);
+    return () => URL.revokeObjectURL(docInfo.url);
   }
 
   React.useEffect(() => {
-    onUpdate(docInfo);
+    return onUpdate(docInfo);
   }, [docInfo]);
 
   return doc;
