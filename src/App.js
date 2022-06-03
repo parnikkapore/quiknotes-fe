@@ -22,6 +22,10 @@ function AppShell() {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
 
+  const handleLogin = () => {
+    handleClose();
+    navigate("/Login");
+  }
   const handleLogout = () => {
     handleClose();
     signout();
@@ -50,7 +54,7 @@ function AppShell() {
         >
           Creative Noters
         </Typography>
-        {user && (
+        {user ?
           <div>
             <IconButton
               size="medium"
@@ -80,8 +84,36 @@ function AppShell() {
               <MenuItem onClick={handleProfile}>Profile</MenuItem>
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </Menu>
+          </div> : <div>
+            <IconButton
+              size="medium"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleMenu}
+              color="inherit"
+            >
+              <AccountCircle />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={handleLogin}>Sign in</MenuItem>
+            </Menu>
           </div>
-        )}
+        }
       </Toolbar>
     </AppBar>
   );

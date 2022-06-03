@@ -10,6 +10,7 @@ import {
   Route,
 } from "react-router-dom";
 import ProfilePage from "./Components/ProfilePage";
+import PageLogin from "./Components/PageLogin";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -20,6 +21,7 @@ root.render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/Login" element={<PageLogin />} />
           <Route path="/Canvas" element={<Canvas />} />
           <Route path="/Profile" element={<ProfilePage />} />
         </Routes>

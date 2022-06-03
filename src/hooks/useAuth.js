@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import React, { useState, useEffect, useContext, createContext } from "react";
 import { config as firebaseConfig } from "../config/firebaseConfig.js";
@@ -51,11 +51,11 @@ function useProvideAuth() {
 
   const signup = (email, password) => {
     return firebaseAuth
-      .createUserWithEmailAndPassword(email, password)
-      .then((response) => {
-        setUser(response.user);
-        return response.user;
-      });
+    .createUserWithEmailAndPassword(email, password)
+    .then((response) => {
+      setUser(response.user);
+      return response.user;
+    });
   };
 
   const signout = () => {
@@ -79,6 +79,10 @@ function useProvideAuth() {
   const signInWithGoogle = () => {
     return signInWithPopup(firebaseAuth, googleAuthProvider);
   };
+
+  const signInAnonymous = () => {
+    return signInAnonymously(firebaseAuth)
+  }
 
   // Subscribe to user on mount
   // Because this sets state in the callback it will cause any ...
@@ -105,6 +109,7 @@ function useProvideAuth() {
     signout,
     sendPasswordResetEmail,
     confirmPasswordReset,
-    signInWithGoogle
+    signInWithGoogle,
+    signInAnonymous
   };
 }

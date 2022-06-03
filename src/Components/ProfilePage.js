@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import Button from "@mui/material/Button";
 import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import { AppBar, Toolbar, Typography, IconButton, MenuItem, Menu } from "@mui/material";
-import AccountCircle from '@mui/icons-material/AccountCircle';
+import { AppBar, Toolbar, Typography, IconButton, MenuItem, Menu, Button, Container, Box } from "@mui/material";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 
 function ProfilePage() {
     const navigate = useNavigate();
