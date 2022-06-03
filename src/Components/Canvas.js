@@ -206,7 +206,7 @@ export default function Canvas(props) {
           <span>{"Open PDF: "}</span>
           <input
             type="file"
-            accept="application/pdf"
+            accept="application/pdf,image/*"
             onChange={handlePDFOpen}
           ></input>
         </span>
