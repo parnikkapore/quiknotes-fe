@@ -20,59 +20,65 @@ const pdfPageTemplate = {
   },
 };
 
-export const emptyPDF = {name: "None", pages: [pdfPageTemplate]};
+export const emptyPDF = { name: "None", pages: [pdfPageTemplate] };
 
-export async function addPDFAsync(url, setDoc, name="Document") {
+export async function addPDFAsync(url, setDoc, name = "Document") {
   const docP = pdfjs.getDocument(url).promise;
-  
-  const pagesP = [docP.then((pdf) => {
-    console.log("PDF loaded");
 
-    // Fetch the first page
-    const pageNumber = 1;
-    return pdf.getPage(pageNumber);
-  })];
-  
-  const parsedPagesP = [pagesP[0].then(async (page) => {
-    console.log("Page loaded");
-    
-    const scale = 1.0;
-    const viewport = page.getViewport({ scale: scale });
-    
-    return {
-      viewport: viewport,
-      width: viewport.width,
-      height: viewport.height,
-      page: page,
-    };
-  })];
+  const pagesP = [
+    docP.then((pdf) => {
+      console.log("PDF loaded");
+
+      // Fetch the first page
+      const pageNumber = 1;
+      return pdf.getPage(pageNumber);
+    }),
+  ];
+
+  const parsedPagesP = [
+    pagesP[0].then(async (page) => {
+      console.log("Page loaded");
+
+      const scale = 1.0;
+      const viewport = page.getViewport({ scale: scale });
+
+      return {
+        viewport: viewport,
+        width: viewport.width,
+        height: viewport.height,
+        page: page,
+      };
+    }),
+  ];
 
   const locatedPagesP = [
     parsedPagesP[0].then((page) => {
-      return {...page, xpos: 0, ypos: 0};
-    })
+      return { ...page, xpos: 0, ypos: 0 };
+    }),
   ];
-  
-  const renderedPagesP = [locatedPagesP[0].then(async (page) => {
-    // Prepare canvas using PDF page dimensions
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    canvas.width = page.width;
-    canvas.height = page.height;
 
-    // Render PDF page into canvas context
-    const renderContext = {
-      canvasContext: context,
-      viewport: page.viewport,
-    };
-    await page.page.render(renderContext).promise;
+  const renderedPagesP = [
+    locatedPagesP[0].then(async (page) => {
+      // Prepare canvas using PDF page dimensions
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      canvas.width = page.width;
+      canvas.height = page.height;
 
-    return {
-      ...page,
-      image: canvas,
-    };
-  })];
-  
+      // Render PDF page into canvas context
+      const renderContext = {
+        canvasContext: context,
+        viewport: page.viewport,
+      };
+      await page.page.render(renderContext).promise;
+
+      return {
+        ...page,
+        image: canvas,
+      };
+    }),
+  ];
+
   try {
     const pageInfo = await renderedPagesP[0];
     console.log("Page rendered");
@@ -81,7 +87,7 @@ export async function addPDFAsync(url, setDoc, name="Document") {
       ypos: pageInfo.ypos,
       width: pageInfo.width,
       height: pageInfo.height,
-      image: {1: pageInfo.image},
+      image: { 1: pageInfo.image },
     });
     setDoc({
       name: name,
