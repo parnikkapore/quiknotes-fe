@@ -12,6 +12,7 @@ import {
 import ProfilePage from "./Components/ProfilePage";
 import PageLogin from "./Components/PageLogin";
 import PageSignUp from "./Components/PageSignUp";
+import PageForgotPassword from "./Components/PageForgotPassword";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -24,6 +25,7 @@ root.render(
           <Route path="/" element={<App />} />
           <Route path="/Login" element={<PageLogin />} />
           <Route path = "/SignUp" element={<PageSignUp />} />
+          <Route path="/ForgotPassword" element={<PageForgotPassword />} />
           <Route path="/Canvas" element={<Canvas />} />
           <Route path="/Profile" element={<ProfilePage />} />
         </Routes>

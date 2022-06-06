@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import React, { useState, useEffect, useContext, createContext } from "react";
 import { config as firebaseConfig } from "../config/firebaseConfig.js";
@@ -50,10 +50,10 @@ function useProvideAuth() {
 
   const signup = (email, password) => {
     return createUserWithEmailAndPassword(firebaseAuth, email, password)
-    .then((response) => {
-      setUser(response.user);
-      return response.user;
-    });
+      .then((response) => {
+        setUser(response.user);
+        return response.user;
+      });
   };
 
   const signout = () => {
@@ -62,10 +62,8 @@ function useProvideAuth() {
     });
   };
 
-  const sendPasswordResetEmail = (email) => {
-    return firebaseAuth.sendPasswordResetEmail(email).then(() => {
-      return true;
-    });
+  const SendPasswordResetEmail = (email) => {
+    return sendPasswordResetEmail(firebaseAuth, email)
   };
 
   const confirmPasswordReset = (code, password) => {
@@ -105,9 +103,9 @@ function useProvideAuth() {
     signin,
     signup,
     signout,
-    sendPasswordResetEmail,
+    SendPasswordResetEmail,
     confirmPasswordReset,
     signInWithGoogle,
-    signInAnonymous
+    signInAnonymous,
   };
 }
