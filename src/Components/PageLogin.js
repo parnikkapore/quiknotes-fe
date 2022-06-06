@@ -4,7 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuth } from "../hooks/useAuth";
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Copyright(props) {
     return (
@@ -23,20 +23,25 @@ const theme = createTheme();
 
 export default function PageLogin() {
 
-    const { signInWithGoogle, signInAnonymous } = useAuth();
+    const { signInWithGoogle, signInAnonymous, signin, user } = useAuth();
+
+    const navigate = useNavigate()
 
     const handleAnonymous = () => {
         signInAnonymous();
-        Navigate("/");
     }
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
+        signin(data.get('email'), data.get('password'));
         console.log({
             email: data.get('email'),
             password: data.get('password'),
         });
+        if (user) {
+            navigate("/");
+        }
     };
 
     return (
@@ -113,7 +118,7 @@ export default function PageLogin() {
                                 </Link>
                             </Grid>
                             <Grid item>
-                                <Link href="#" variant="body2">
+                                <Link href="/SignUp" variant="body2">
                                     {"Don't have an account? Sign Up"}
                                 </Link>
                             </Grid>
