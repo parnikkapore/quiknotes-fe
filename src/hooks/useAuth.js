@@ -77,7 +77,11 @@ function useProvideAuth() {
   };
 
   const signInAnonymous = () => {
-    return signInAnonymously(firebaseAuth)
+    return signInWithEmailAndPassword(firebaseAuth, "anonymous@mail.com", "anonymous")
+      .then((response) => {
+        setUser(response.user);
+        return response.user;
+      });
   }
 
   // Subscribe to user on mount
