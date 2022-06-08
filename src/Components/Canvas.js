@@ -6,6 +6,8 @@ import { Button, Select, IconButton, MenuItem, Input } from "@mui/material";
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 import IosShareIcon from '@mui/icons-material/IosShare';
+import { SketchPicker } from 'react-color'
+import reactCSS from 'reactcss'
 import "./Canvas.css";
 
 
@@ -21,6 +23,53 @@ export default function Canvas(props) {
   const [tool, setTool] = React.useState("pen");
   const [lines, setLines] = React.useState([]);
   const isDrawing = React.useRef(false);
+  const [displayColorPicker, setDisplayColorPicker] = React.useState(false);
+  const [color, setColor] = React.useState("#000");
+
+  // === Color picker functionality =====
+
+  const handleClick = () => {
+    setDisplayColorPicker(!displayColorPicker);
+  };
+
+  const handleClose = () => {
+    setDisplayColorPicker(false);
+  };
+
+  const handleChange = (color) => {
+    setColor(color.rgb);
+    console.log(color.hex);
+  };
+
+  const styles = reactCSS({
+    'default': {
+      color: {
+        width: '36px',
+        height: '14px',
+        borderRadius: '2px',
+        background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
+      },
+      swatch: {
+        padding: '5px',
+        background: '#fff',
+        borderRadius: '1px',
+        boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
+        display: 'inline-block',
+        cursor: 'pointer',
+      },
+      popover: {
+        position: 'absolute',
+        zIndex: '2',
+      },
+      cover: {
+        position: 'fixed',
+        top: '0px',
+        right: '0px',
+        bottom: '0px',
+        left: '0px',
+      },
+    },
+  });
 
   const handleMouseDown = (e) => {
     isDrawing.current = true;
@@ -222,6 +271,15 @@ export default function Canvas(props) {
         <span>
           <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>Export as image</Button>
         </span>
+        <span>
+          <div style={styles.swatch} onClick={handleClick}>
+            <div style={styles.color} />
+          </div>
+          {displayColorPicker ? <div style={styles.popover}>
+            <div style={styles.cover} onClick={handleClose} />
+            <SketchPicker color={color} onChange={handleChange} />
+          </div> : null}
+        </span>
       </div>
       <div id="stage-container" ref={stage_container}>
         <ScrollableStage
@@ -280,7 +338,7 @@ export default function Canvas(props) {
               <Line
                 key={i}
                 points={line.points}
-                stroke="#df4b26"
+                stroke= "black"
                 strokeWidth={5}
                 tension={0.5}
                 lineCap="round"

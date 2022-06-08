@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import React, { useState, useEffect, useContext, createContext } from "react";
 import { config as firebaseConfig } from "../config/firebaseConfig.js";
@@ -77,7 +77,7 @@ function useProvideAuth() {
   };
 
   const signInAnonymous = () => {
-    return signInWithEmailAndPassword(firebaseAuth, "anonymous@mail.com", "anonymous")
+    return signInWithEmailAndPassword(firebaseAuth, "anonymous@example.com", "anonymous")
       .then((response) => {
         setUser(response.user);
         return response.user;
