@@ -7,6 +7,7 @@
     "@testing-library/react": "^13.0.0",
     "@testing-library/user-event": "^13.2.1",
     "konva": "^8.3.8",
+    "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^2.14.305",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
@@ -25,7 +26,17 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "no-unused-vars": [
+        "warn",
+        {
+          "args": "none",
+          "ignoreRestSiblings": true,
+          "destructuredArrayIgnorePattern": "^_$"
+        }
+      ]
+    }
   },
   "browserslist": {
     "production": [

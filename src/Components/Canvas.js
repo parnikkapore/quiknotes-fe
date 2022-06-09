@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { Layer, Line, Star } from "react-konva";
+import { PDFDocument } from "pdf-lib";
 import ScrollableStage from "./ScrollableStage";
 import useDocument from "../Hooks/useDocument";
 import "./Canvas.css";
@@ -140,6 +141,8 @@ export default function Canvas(props) {
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
 
+  const RASTERIZER_DPR = 3;
+
   function rasterizePage(pageNumber) {
     const stage = the_stage.current;
     const { x: minX, width } = the_layer.current.getClientRect({
@@ -153,7 +156,7 @@ export default function Canvas(props) {
       stage.scale({ x: 1, y: 1 });
 
       dataURL = stage.toDataURL({
-        pixelRatio: 3,
+        pixelRatio: RASTERIZER_DPR,
         x: minX,
         y: doc.pages[pageNumber].ypos,
         width: width,
@@ -162,22 +165,42 @@ export default function Canvas(props) {
     } finally {
       stage.setAttrs(oldAttrs);
     }
-    
+
     return dataURL;
   }
-  
+
+  // https://stackoverflow.com/a/15832662/512042
+  function downloadURI(uri, name) {
+    var link = document.createElement("a");
+    link.download = name;
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   function handleExportImage(e) {
-    // https://stackoverflow.com/a/15832662/512042
-    function downloadURI(uri, name) {
-      var link = document.createElement("a");
-      link.download = name;
-      link.href = uri;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-    
     downloadURI(rasterizePage(0), doc.name);
+  }
+
+  function handleExportRasterPDF(e) {
+    async function _handleExportRasterPDF(e) {
+      const pdf = await PDFDocument.create();
+
+      for (const [i, _] of doc.pages.entries()) {
+        const pdfImg = await pdf.embedPng(rasterizePage(i));
+        const pdfImgDims = pdfImg.scale(1 / RASTERIZER_DPR);
+        const pdfPage = pdf.addPage([pdfImgDims.width, pdfImgDims.height]);
+        pdfPage.drawImage(pdfImg, {
+          width: pdfImgDims.width,
+          height: pdfImgDims.height,
+        });
+      }
+
+      downloadURI(await pdf.saveAsBase64({ dataUri: true }), doc.name);
+    }
+
+    _handleExportRasterPDF(e);
   }
 
   // === Canvas resize =====
@@ -222,9 +245,8 @@ export default function Canvas(props) {
             onChange={handlePDFOpen}
           ></input>
         </span>
-        <span>
-          <button onClick={handleExportImage}>Export as image</button>
-        </span>
+        <button onClick={handleExportImage}>Export as image</button>
+        <button onClick={handleExportRasterPDF}>Export as bitmap PDF</button>
       </div>
       <div id="stage-container" ref={stage_container}>
         <ScrollableStage
