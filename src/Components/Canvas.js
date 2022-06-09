@@ -138,6 +138,7 @@ export default function Canvas(props) {
   }
 
   const the_stage = React.useRef(null);
+  const the_layer = React.useRef(null);
 
   function handleExportImage(e) {
     // https://stackoverflow.com/a/15832662/512042
@@ -151,6 +152,9 @@ export default function Canvas(props) {
     }
 
     const stage = the_stage.current;
+    const { x: minX, width } = the_layer.current.getClientRect({
+      skipTransform: true,
+    });
 
     const oldAttrs = { ...stage.getAttrs() };
     stage.position({ x: 0, y: 0 });
@@ -158,9 +162,9 @@ export default function Canvas(props) {
 
     var dataURL = stage.toDataURL({
       pixelRatio: 3,
-      x: 0,
+      x: minX,
       y: 0,
-      width: doc.pages[0].width,
+      width: width,
       height: doc.pages[0].height,
     });
     downloadURI(dataURL, doc.name);
@@ -227,7 +231,7 @@ export default function Canvas(props) {
           onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
           onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
-          <Layer>
+          <Layer ref={the_layer}>
             <Star
               key={"A"}
               id="1"
