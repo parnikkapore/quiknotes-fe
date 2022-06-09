@@ -24,7 +24,7 @@ export default function Canvas(props) {
   const [lines, setLines] = React.useState([]);
   const isDrawing = React.useRef(false);
   const [displayColorPicker, setDisplayColorPicker] = React.useState(false);
-  const [color, setColor] = React.useState("#000");
+  const [color, setColor] = React.useState("black");
 
   // === Color picker functionality =====
 
@@ -37,8 +37,7 @@ export default function Canvas(props) {
   };
 
   const handleChange = (color) => {
-    setColor(color.rgb);
-    console.log(color.hex);
+    setColor(color.hex);
   };
 
   const styles = reactCSS({
@@ -252,6 +251,7 @@ export default function Canvas(props) {
           }}
         >
           <MenuItem value="pen">Pen</MenuItem>
+          <MenuItem value="eraser">Eraser</MenuItem>
           <MenuItem value="drag">Hand</MenuItem>
         </Select>
         <IconButton aria-label="Undo" onClick={handleUndo}>
@@ -338,7 +338,7 @@ export default function Canvas(props) {
               <Line
                 key={i}
                 points={line.points}
-                stroke= "black"
+                stroke= {color}
                 strokeWidth={5}
                 tension={0.5}
                 lineCap="round"
