@@ -124,7 +124,7 @@ export default function Canvas(props) {
   });
   const doc = useDocument(docInfo);
 
-  function handlePDFOpen(e) {
+  function handleFileOpen(e) {
     const file = e.target.files[0];
 
     history = [[]];
@@ -238,11 +238,11 @@ export default function Canvas(props) {
         <button onClick={handleUndo}>undo</button>
         <button onClick={handleRedo}>redo</button>
         <span>
-          <span>{"Open PDF: "}</span>
+          <span>{"Open file: "}</span>
           <input
             type="file"
             accept="application/pdf,image/*"
-            onChange={handlePDFOpen}
+            onChange={handleFileOpen}
           ></input>
         </span>
         <button onClick={handleExportImage}>Export as image</button>
