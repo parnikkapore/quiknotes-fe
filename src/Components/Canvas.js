@@ -140,6 +140,32 @@ export default function Canvas(props) {
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
 
+  function rasterizePage(pageNumber) {
+    const stage = the_stage.current;
+    const { x: minX, width } = the_layer.current.getClientRect({
+      skipTransform: true,
+    });
+
+    const oldAttrs = { ...stage.getAttrs() };
+    let dataURL = null;
+    try {
+      stage.position({ x: 0, y: 0 });
+      stage.scale({ x: 1, y: 1 });
+
+      dataURL = stage.toDataURL({
+        pixelRatio: 3,
+        x: minX,
+        y: doc.pages[pageNumber].ypos,
+        width: width,
+        height: doc.pages[pageNumber].height,
+      });
+    } finally {
+      stage.setAttrs(oldAttrs);
+    }
+    
+    return dataURL;
+  }
+  
   function handleExportImage(e) {
     // https://stackoverflow.com/a/15832662/512042
     function downloadURI(uri, name) {
@@ -150,26 +176,8 @@ export default function Canvas(props) {
       link.click();
       document.body.removeChild(link);
     }
-
-    const stage = the_stage.current;
-    const { x: minX, width } = the_layer.current.getClientRect({
-      skipTransform: true,
-    });
-
-    const oldAttrs = { ...stage.getAttrs() };
-    stage.position({ x: 0, y: 0 });
-    stage.scale({ x: 1, y: 1 });
-
-    var dataURL = stage.toDataURL({
-      pixelRatio: 3,
-      x: minX,
-      y: 0,
-      width: width,
-      height: doc.pages[0].height,
-    });
-    downloadURI(dataURL, doc.name);
-
-    stage.setAttrs(oldAttrs);
+    
+    downloadURI(rasterizePage(0), doc.name);
   }
 
   // === Canvas resize =====
