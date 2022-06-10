@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import { Layer, Line, Star } from "react-konva";
+import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import { usePDFRenderer } from "./pdfPage";
 import { Button, Select, IconButton, MenuItem, Input } from "@mui/material";
@@ -305,44 +305,6 @@ export default function Canvas(props) {
           onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
         >
           <Layer>
-            <Star
-              key={"A"}
-              id="1"
-              x={100}
-              y={150}
-              numPoints={5}
-              innerRadius={20}
-              outerRadius={40}
-              fill="#89b717"
-              opacity={0.8}
-              rotation={0}
-              shadowColor="black"
-              shadowBlur={10}
-              shadowOpacity={0.6}
-              shadowOffsetX={5}
-              shadowOffsetY={5}
-              scaleX={1}
-              scaleY={1}
-            />
-            <Star
-              key={"B"}
-              id="2"
-              x={300}
-              y={500}
-              numPoints={5}
-              innerRadius={20}
-              outerRadius={40}
-              fill="#aaf"
-              opacity={0.8}
-              rotation={30}
-              shadowColor="black"
-              shadowBlur={10}
-              shadowOpacity={0.6}
-              shadowOffsetX={5}
-              shadowOffsetY={5}
-              scaleX={1}
-              scaleY={1}
-            />
             {docPDF.render()}
             {lines.map((line, i) => (
               <Line
