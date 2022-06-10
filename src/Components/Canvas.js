@@ -25,9 +25,9 @@ export default function Canvas(props) {
   const isDrawing = React.useRef(false);
   const [displayColorPicker, setDisplayColorPicker] = React.useState(false);
   const [color, setColor] = React.useState({
-    r: '241',
-    g: '112',
-    b: '19',
+    r: '0',
+    g: '0',
+    b: '0',
     a: '1',
   });
   const [strokeColor, setStrokeColor] = React.useState("#000000");
@@ -45,6 +45,7 @@ export default function Canvas(props) {
   const handleChange = (color) => {
     setColor(color.rgb);
     setStrokeColor(color.hex);
+    console.log(strokeColor);
   };
 
   const styles = reactCSS({
@@ -80,7 +81,7 @@ export default function Canvas(props) {
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getRelativePointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y] }]);
+    setLines([...lines, { tool, points: [pos.x, pos.y], color: strokeColor }]);
   };
 
   const handleMouseMove = (e) => {
@@ -94,6 +95,7 @@ export default function Canvas(props) {
     let lastLine = lines[lines.length - 1];
     // add point
     lastLine.points = lastLine.points.concat([point.x, point.y]);
+    lastLine.color = strokeColor;
 
     // replace last
     setLines(lines.slice(0, -1).concat(lastLine));
@@ -114,6 +116,7 @@ export default function Canvas(props) {
       newLines.push({
         ...lastLine,
         points: lastLine.points.concat(lastLine.points),
+        color: lastLine.color.concat(lastLine.color),
       });
       setLines(newLines);
     }
@@ -345,7 +348,7 @@ export default function Canvas(props) {
               <Line
                 key={i}
                 points={line.points}
-                stroke={strokeColor}
+                stroke={line.color}
                 strokeWidth={5}
                 tension={0.5}
                 lineCap="round"
