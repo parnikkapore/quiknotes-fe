@@ -24,7 +24,13 @@ export default function Canvas(props) {
   const [lines, setLines] = React.useState([]);
   const isDrawing = React.useRef(false);
   const [displayColorPicker, setDisplayColorPicker] = React.useState(false);
-  const [color, setColor] = React.useState("black");
+  const [color, setColor] = React.useState({
+    r: '241',
+    g: '112',
+    b: '19',
+    a: '1',
+  });
+  const [strokeColor, setStrokeColor] = React.useState("#000000");
 
   // === Color picker functionality =====
 
@@ -37,7 +43,8 @@ export default function Canvas(props) {
   };
 
   const handleChange = (color) => {
-    setColor(color.hex);
+    setColor(color.rgb);
+    setStrokeColor(color.hex);
   };
 
   const styles = reactCSS({
@@ -338,7 +345,7 @@ export default function Canvas(props) {
               <Line
                 key={i}
                 points={line.points}
-                stroke= {color}
+                stroke={strokeColor}
                 strokeWidth={5}
                 tension={0.5}
                 lineCap="round"
