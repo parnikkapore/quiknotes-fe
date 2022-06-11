@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import useDocument from "../Hooks/useDocument";
+import { PDFDocument } from "pdf-lib";
 import { Button, Select, IconButton, MenuItem, Input } from "@mui/material";
 import UndoIcon from "@mui/icons-material/Undo";
 import RedoIcon from "@mui/icons-material/Redo";
@@ -195,53 +196,88 @@ export default function Canvas(props) {
 
   const [docInfo, setDocInfo] = React.useState({
     name: "Test PDF",
+    type: "application/pdf",
     url: "/test1.pdf",
   });
   const doc = useDocument(docInfo);
 
-  function handlePDFOpen(e) {
+  function handleFileOpen(e) {
     const file = e.target.files[0];
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      history = [[]];
-      historyStep = 0;
-      setLines([]);
+    history = [[]];
+    historyStep = 0;
+    setLines([]);
 
-      setDocInfo({ name: "Uploaded", url: e.target.result });
-    };
-    reader.readAsArrayBuffer(file);
+    setDocInfo({
+      name: file.name.replace(/\.[^/.]+$/, ""),
+      type: file.type,
+      url: URL.createObjectURL(file),
+    });
   }
 
   const the_stage = React.useRef(null);
+  const the_layer = React.useRef(null);
 
-  function handleExportImage(e) {
-    // https://stackoverflow.com/a/15832662/512042
-    function downloadURI(uri, name) {
-      var link = document.createElement("a");
-      link.download = name;
-      link.href = uri;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+  const RASTERIZER_DPR = 3;
 
+  function rasterizePage(pageNumber) {
     const stage = the_stage.current;
+    const { x: minX, width } = the_layer.current.getClientRect({
+      skipTransform: true,
+    });
 
     const oldAttrs = { ...stage.getAttrs() };
-    stage.position({ x: 0, y: 0 });
-    stage.scale({ x: 1, y: 1 });
+    let dataURL = null;
+    try {
+      stage.position({ x: 0, y: 0 });
+      stage.scale({ x: 1, y: 1 });
 
-    var dataURL = stage.toDataURL({
-      pixelRatio: 3,
-      x: 0,
-      y: 0,
-      width: doc.pages[0].width,
-      height: doc.pages[0].height,
-    });
-    downloadURI(dataURL, "export.png");
+      dataURL = stage.toDataURL({
+        pixelRatio: RASTERIZER_DPR,
+        x: minX,
+        y: doc.pages[pageNumber].ypos,
+        width: width,
+        height: doc.pages[pageNumber].height,
+      });
+    } finally {
+      stage.setAttrs(oldAttrs);
+    }
 
-    stage.setAttrs(oldAttrs);
+    return dataURL;
+  }
+
+  // https://stackoverflow.com/a/15832662/512042
+  function downloadURI(uri, name) {
+    var link = document.createElement("a");
+    link.download = name;
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function handleExportImage(e) {
+    downloadURI(rasterizePage(0), doc.name);
+  }
+
+  function handleExportRasterPDF(e) {
+    async function _handleExportRasterPDF(e) {
+      const pdf = await PDFDocument.create();
+
+      for (const [i, _] of doc.pages.entries()) {
+        const pdfImg = await pdf.embedPng(rasterizePage(i));
+        const pdfImgDims = pdfImg.scale(1 / RASTERIZER_DPR);
+        const pdfPage = pdf.addPage([pdfImgDims.width, pdfImgDims.height]);
+        pdfPage.drawImage(pdfImg, {
+          width: pdfImgDims.width,
+          height: pdfImgDims.height,
+        });
+      }
+
+      downloadURI(await pdf.saveAsBase64({ dataUri: true }), doc.name);
+    }
+
+    _handleExportRasterPDF(e);
   }
 
   // === Canvas resize =====
@@ -286,18 +322,19 @@ export default function Canvas(props) {
           <RedoIcon />
         </IconButton>
         <span>
-          <span>{"Open PDF: "}</span>
+          <span>{"Open file: "}</span>
           <Input
             type="file"
-            accept="application/pdf"
-            onChange={handlePDFOpen}
+            accept="application/pdf,image/*"
+            onChange={handleFileOpen}
           ></Input>
         </span>
-        <span>
-          <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>
-            Export as image
-          </Button>
-        </span>
+        <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>
+          Export as image
+        </Button>
+        <Button onClick={handleExportRasterPDF} endIcon={<IosShareIcon />}>
+          Export as bitmap PDF
+        </Button>
         <span>
           <div style={styles.swatch} onClick={handleClick}>
             <div style={styles.color} />
@@ -323,7 +360,7 @@ export default function Canvas(props) {
           onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
           onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
-          <Layer>
+          <Layer ref={the_layer}>
             {doc.pages.map((page) => page.render())}
             {lines.map((line, i) => (
               <Line

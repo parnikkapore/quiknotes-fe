@@ -13,6 +13,7 @@
     "@testing-library/user-event": "^13.2.1",
     "firebase": "^9.8.2",
     "konva": "^8.3.8",
+    "pdf-lib": "^1.17.1",
     "material-ui-icons": "^1.0.0-beta.36",
     "pdfjs-dist": "^2.14.305",
     "react": "^18.1.0",
@@ -35,7 +36,17 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "no-unused-vars": [
+        "warn",
+        {
+          "args": "none",
+          "ignoreRestSiblings": true,
+          "destructuredArrayIgnorePattern": "^_$"
+        }
+      ]
+    }
   },
   "browserslist": {
     "production": [
