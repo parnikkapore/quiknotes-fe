@@ -3,7 +3,7 @@ import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import useDocument from "../hooks/useDocument";
 import { PDFDocument } from "pdf-lib";
-import { Button, IconButton, Input } from "@mui/material";
+import { Button, IconButton, Input, Box, Slider } from "@mui/material";
 import UndoIcon from "@mui/icons-material/Undo";
 import RedoIcon from "@mui/icons-material/Redo";
 import IosShareIcon from "@mui/icons-material/IosShare";
@@ -35,6 +35,8 @@ export default function Canvas(props) {
     a: "1",
   });
   const [strokeColor, setStrokeColor] = React.useState("#000000");
+  const [strokeWidth, setStrokeWidth] = React.useState(5);
+  const [highlighterStrokeWidth, setHighlighterStrokeWidth] = React.useState(25);
 
   // === Color picker functionality =====
 
@@ -92,7 +94,7 @@ export default function Canvas(props) {
         points: [pos.x, pos.y],
         color: strokeColor,
         opacity: 1,
-        strokeWidth: 5,
+        strokeWidth: strokeWidth,
       },
     ]);
   };
@@ -111,7 +113,7 @@ export default function Canvas(props) {
     lastLine.color = strokeColor;
     if (tool === "highlighter") {
       lastLine.opacity = 0.5;
-      lastLine.strokeWidth = 50;
+      lastLine.strokeWidth = highlighterStrokeWidth;
     }
 
     // replace last
@@ -360,6 +362,18 @@ export default function Canvas(props) {
             </div>
           ) : null}
         </span>
+        <span>
+          <Box width={150}>
+            <Slider
+              defaultValue={tool === "highlighter" ? highlighterStrokeWidth : strokeWidth}
+              aria-label="Stroke width"
+              valueLabelDisplay="auto"
+              min={1}
+              max={50}
+              onChange={(e, newValue) => { tool === "highlighter" ? setHighlighterStrokeWidth(newValue) : setStrokeWidth(newValue) }}
+            />
+          </Box>
+        </span>
       </div>
       <div id="stage-container" ref={stage_container}>
         <ScrollableStage
@@ -370,9 +384,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
         >
           <Layer ref={the_layer}>
             {doc.pages.map((page) => page.render())}
