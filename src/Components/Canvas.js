@@ -1,14 +1,19 @@
 import React, { useCallback, useEffect } from "react";
 import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
-import useDocument from "../Hooks/useDocument";
+import useDocument from "../hooks/useDocument";
 import { PDFDocument } from "pdf-lib";
-import { Button, Select, IconButton, MenuItem, Input } from "@mui/material";
+import { Button, IconButton, Input } from "@mui/material";
 import UndoIcon from "@mui/icons-material/Undo";
 import RedoIcon from "@mui/icons-material/Redo";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import { SketchPicker } from "react-color";
 import reactCSS from "reactcss";
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { AiOutlineHighlight } from 'react-icons/ai';
+import { BsPencil, BsEraser } from 'react-icons/bs';
+import { IoHandRightOutline } from 'react-icons/io5';
 import "./Canvas.css";
 
 // === For undo & redo =====
@@ -303,18 +308,27 @@ export default function Canvas(props) {
   return (
     <div id="canvas">
       <div id="toolbar">
-        <Select
+        <ToggleButtonGroup
           value={tool}
-          label="Tool"
+          exclusive
           onChange={(e) => {
             setTool(e.target.value);
           }}
+          aria-label="Tool"
         >
-          <MenuItem value="pen">Pen</MenuItem>
-          <MenuItem value="highlighter">Highlighter</MenuItem>
-          <MenuItem value="eraser">Eraser</MenuItem>
-          <MenuItem value="drag">Hand</MenuItem>
-        </Select>
+          <ToggleButton value="pen" aria-label="Pen">
+            <BsPencil size={30} />
+          </ToggleButton>
+          <ToggleButton value="eraser" aria-label="Eraser">
+            <BsEraser size={30} />
+          </ToggleButton>
+          <ToggleButton value="highlighter" aria-label="Highlighter">
+            <AiOutlineHighlight size={30} />
+          </ToggleButton>
+          <ToggleButton value="drag" aria-label="Hand" >
+            <IoHandRightOutline size={30} />
+          </ToggleButton>
+        </ToggleButtonGroup>
         <IconButton aria-label="Undo" onClick={handleUndo}>
           <UndoIcon />
         </IconButton>
@@ -356,9 +370,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
         >
           <Layer ref={the_layer}>
             {doc.pages.map((page) => page.render())}
