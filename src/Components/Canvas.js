@@ -81,7 +81,7 @@ export default function Canvas(props) {
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getRelativePointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y], color: strokeColor }]);
+    setLines([...lines, { tool, points: [pos.x, pos.y], color: strokeColor, opacity: 1 ,strokeWidth: 5}]);
   };
 
   const handleMouseMove = (e) => {
@@ -96,6 +96,10 @@ export default function Canvas(props) {
     // add point
     lastLine.points = lastLine.points.concat([point.x, point.y]);
     lastLine.color = strokeColor;
+    if (tool === "highlighter") {
+      lastLine.opacity = 0.5;
+      lastLine.strokeWidth = 50;
+    }
 
     // replace last
     setLines(lines.slice(0, -1).concat(lastLine));
@@ -117,6 +121,8 @@ export default function Canvas(props) {
         ...lastLine,
         points: lastLine.points.concat(lastLine.points),
         color: lastLine.color.concat(lastLine.color),
+        opacity: lastLine.opacity.concat(lastLine.opacity),
+        strokeWidth: lastLine.strokeWidth.concat(lastLine.strokeWidth),
       });
       setLines(newLines);
     }
@@ -261,6 +267,7 @@ export default function Canvas(props) {
           }}
         >
           <MenuItem value="pen">Pen</MenuItem>
+          <MenuItem value="highlighter">Highlighter</MenuItem>
           <MenuItem value="eraser">Eraser</MenuItem>
           <MenuItem value="drag">Hand</MenuItem>
         </Select>
@@ -311,7 +318,8 @@ export default function Canvas(props) {
                 key={i}
                 points={line.points}
                 stroke={line.color}
-                strokeWidth={5}
+                opacity={line.opacity}
+                strokeWidth={line.strokeWidth}
                 tension={0.5}
                 lineCap="round"
                 globalCompositeOperation={
