@@ -1,7 +1,13 @@
 import React, { useCallback, useEffect } from "react";
-import { Layer, Line, Star } from "react-konva";
+import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import useDocument from "../Hooks/useDocument";
+import { Button, Select, IconButton, MenuItem, Input } from "@mui/material";
+import UndoIcon from "@mui/icons-material/Undo";
+import RedoIcon from "@mui/icons-material/Redo";
+import IosShareIcon from "@mui/icons-material/IosShare";
+import { SketchPicker } from "react-color";
+import reactCSS from "reactcss";
 import "./Canvas.css";
 
 // === For undo & redo =====
@@ -15,11 +21,74 @@ export default function Canvas(props) {
   const [tool, setTool] = React.useState("pen");
   const [lines, setLines] = React.useState([]);
   const isDrawing = React.useRef(false);
+  const [displayColorPicker, setDisplayColorPicker] = React.useState(false);
+  const [color, setColor] = React.useState({
+    r: "0",
+    g: "0",
+    b: "0",
+    a: "1",
+  });
+  const [strokeColor, setStrokeColor] = React.useState("#000000");
+
+  // === Color picker functionality =====
+
+  const handleClick = () => {
+    setDisplayColorPicker(!displayColorPicker);
+  };
+
+  const handleClose = () => {
+    setDisplayColorPicker(false);
+  };
+
+  const handleChange = (color) => {
+    setColor(color.rgb);
+    setStrokeColor(color.hex);
+    console.log(strokeColor);
+  };
+
+  const styles = reactCSS({
+    default: {
+      color: {
+        width: "36px",
+        height: "14px",
+        borderRadius: "2px",
+        background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
+      },
+      swatch: {
+        padding: "5px",
+        background: "#fff",
+        borderRadius: "1px",
+        boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
+        display: "inline-block",
+        cursor: "pointer",
+      },
+      popover: {
+        position: "absolute",
+        zIndex: "2",
+      },
+      cover: {
+        position: "fixed",
+        top: "0px",
+        right: "0px",
+        bottom: "0px",
+        left: "0px",
+      },
+    },
+  });
 
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getRelativePointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y] }]);
+    setLines([
+      ...lines,
+      {
+        tool,
+        points: [pos.x, pos.y],
+        color: strokeColor,
+        opacity: 1,
+        strokeWidth: 5,
+      },
+    ]);
   };
 
   const handleMouseMove = (e) => {
@@ -33,6 +102,11 @@ export default function Canvas(props) {
     let lastLine = lines[lines.length - 1];
     // add point
     lastLine.points = lastLine.points.concat([point.x, point.y]);
+    lastLine.color = strokeColor;
+    if (tool === "highlighter") {
+      lastLine.opacity = 0.5;
+      lastLine.strokeWidth = 50;
+    }
 
     // replace last
     setLines(lines.slice(0, -1).concat(lastLine));
@@ -53,6 +127,9 @@ export default function Canvas(props) {
       newLines.push({
         ...lastLine,
         points: lastLine.points.concat(lastLine.points),
+        color: lastLine.color.concat(lastLine.color),
+        opacity: lastLine.opacity.concat(lastLine.opacity),
+        strokeWidth: lastLine.strokeWidth.concat(lastLine.strokeWidth),
       });
       setLines(newLines);
     }
@@ -190,27 +267,47 @@ export default function Canvas(props) {
   return (
     <div id="canvas">
       <div id="toolbar">
-        <select
+        <Select
           value={tool}
+          label="Tool"
           onChange={(e) => {
             setTool(e.target.value);
           }}
         >
-          <option value="pen">Pen</option>
-          <option value="drag">Hand</option>
-        </select>
-        <button onClick={handleUndo}>undo</button>
-        <button onClick={handleRedo}>redo</button>
+          <MenuItem value="pen">Pen</MenuItem>
+          <MenuItem value="highlighter">Highlighter</MenuItem>
+          <MenuItem value="eraser">Eraser</MenuItem>
+          <MenuItem value="drag">Hand</MenuItem>
+        </Select>
+        <IconButton aria-label="Undo" onClick={handleUndo}>
+          <UndoIcon />
+        </IconButton>
+        <IconButton aria-label="Redo" onClick={handleRedo}>
+          <RedoIcon />
+        </IconButton>
         <span>
           <span>{"Open PDF: "}</span>
-          <input
+          <Input
             type="file"
             accept="application/pdf"
             onChange={handlePDFOpen}
-          ></input>
+          ></Input>
         </span>
         <span>
-          <button onClick={handleExportImage}>Export as image</button>
+          <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>
+            Export as image
+          </Button>
+        </span>
+        <span>
+          <div style={styles.swatch} onClick={handleClick}>
+            <div style={styles.color} />
+          </div>
+          {displayColorPicker ? (
+            <div style={styles.popover}>
+              <div style={styles.cover} onClick={handleClose} />
+              <SketchPicker color={color} onChange={handleChange} />
+            </div>
+          ) : null}
         </span>
       </div>
       <div id="stage-container" ref={stage_container}>
@@ -227,51 +324,14 @@ export default function Canvas(props) {
           onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer>
-            <Star
-              key={"A"}
-              id="1"
-              x={100}
-              y={150}
-              numPoints={5}
-              innerRadius={20}
-              outerRadius={40}
-              fill="#89b717"
-              opacity={0.8}
-              rotation={0}
-              shadowColor="black"
-              shadowBlur={10}
-              shadowOpacity={0.6}
-              shadowOffsetX={5}
-              shadowOffsetY={5}
-              scaleX={1}
-              scaleY={1}
-            />
-            <Star
-              key={"B"}
-              id="2"
-              x={300}
-              y={500}
-              numPoints={5}
-              innerRadius={20}
-              outerRadius={40}
-              fill="#aaf"
-              opacity={0.8}
-              rotation={30}
-              shadowColor="black"
-              shadowBlur={10}
-              shadowOpacity={0.6}
-              shadowOffsetX={5}
-              shadowOffsetY={5}
-              scaleX={1}
-              scaleY={1}
-            />
             {doc.pages.map((page) => page.render())}
             {lines.map((line, i) => (
               <Line
                 key={i}
                 points={line.points}
-                stroke="#df4b26"
-                strokeWidth={5}
+                stroke={line.color}
+                opacity={line.opacity}
+                strokeWidth={line.strokeWidth}
                 tension={0.5}
                 lineCap="round"
                 globalCompositeOperation={
