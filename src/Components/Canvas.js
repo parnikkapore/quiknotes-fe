@@ -9,11 +9,11 @@ import RedoIcon from "@mui/icons-material/Redo";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import { SketchPicker } from "react-color";
 import reactCSS from "reactcss";
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { AiOutlineHighlight } from 'react-icons/ai';
-import { BsPencil, BsEraser } from 'react-icons/bs';
-import { IoHandRightOutline } from 'react-icons/io5';
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import { AiOutlineHighlight } from "react-icons/ai";
+import { BsPencil, BsEraser } from "react-icons/bs";
+import { IoHandRightOutline } from "react-icons/io5";
 import "./Canvas.css";
 
 // === For undo & redo =====
@@ -311,8 +311,8 @@ export default function Canvas(props) {
         <ToggleButtonGroup
           value={tool}
           exclusive
-          onChange={(e) => {
-            setTool(e.target.value);
+          onChange={(e, newValue) => {
+            setTool(newValue);
           }}
           aria-label="Tool"
         >
@@ -325,7 +325,7 @@ export default function Canvas(props) {
           <ToggleButton value="highlighter" aria-label="Highlighter">
             <AiOutlineHighlight size={30} />
           </ToggleButton>
-          <ToggleButton value="drag" aria-label="Hand" >
+          <ToggleButton value="drag" aria-label="Hand">
             <IoHandRightOutline size={30} />
           </ToggleButton>
         </ToggleButtonGroup>
@@ -370,9 +370,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
             {doc.pages.map((page) => page.render())}
