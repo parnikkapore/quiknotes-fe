@@ -1,15 +1,14 @@
 import React, { useCallback, useEffect } from "react";
 import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
-import { usePDFRenderer } from "./pdfPage";
+import useDocument from "../Hooks/useDocument";
 import { Button, Select, IconButton, MenuItem, Input } from "@mui/material";
-import UndoIcon from '@mui/icons-material/Undo';
-import RedoIcon from '@mui/icons-material/Redo';
-import IosShareIcon from '@mui/icons-material/IosShare';
-import { SketchPicker } from 'react-color'
-import reactCSS from 'reactcss'
+import UndoIcon from "@mui/icons-material/Undo";
+import RedoIcon from "@mui/icons-material/Redo";
+import IosShareIcon from "@mui/icons-material/IosShare";
+import { SketchPicker } from "react-color";
+import reactCSS from "reactcss";
 import "./Canvas.css";
-
 
 // === For undo & redo =====
 
@@ -17,7 +16,6 @@ let history = [[]];
 let historyStep = 0;
 
 export default function Canvas(props) {
-
   // === Paint functionality =====
 
   const [tool, setTool] = React.useState("pen");
@@ -25,10 +23,10 @@ export default function Canvas(props) {
   const isDrawing = React.useRef(false);
   const [displayColorPicker, setDisplayColorPicker] = React.useState(false);
   const [color, setColor] = React.useState({
-    r: '0',
-    g: '0',
-    b: '0',
-    a: '1',
+    r: "0",
+    g: "0",
+    b: "0",
+    a: "1",
   });
   const [strokeColor, setStrokeColor] = React.useState("#000000");
 
@@ -49,31 +47,31 @@ export default function Canvas(props) {
   };
 
   const styles = reactCSS({
-    'default': {
+    default: {
       color: {
-        width: '36px',
-        height: '14px',
-        borderRadius: '2px',
+        width: "36px",
+        height: "14px",
+        borderRadius: "2px",
         background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
       },
       swatch: {
-        padding: '5px',
-        background: '#fff',
-        borderRadius: '1px',
-        boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
-        display: 'inline-block',
-        cursor: 'pointer',
+        padding: "5px",
+        background: "#fff",
+        borderRadius: "1px",
+        boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
+        display: "inline-block",
+        cursor: "pointer",
       },
       popover: {
-        position: 'absolute',
-        zIndex: '2',
+        position: "absolute",
+        zIndex: "2",
       },
       cover: {
-        position: 'fixed',
-        top: '0px',
-        right: '0px',
-        bottom: '0px',
-        left: '0px',
+        position: "fixed",
+        top: "0px",
+        right: "0px",
+        bottom: "0px",
+        left: "0px",
       },
     },
   });
@@ -81,7 +79,16 @@ export default function Canvas(props) {
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getRelativePointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y], color: strokeColor, opacity: 1 ,strokeWidth: 5}]);
+    setLines([
+      ...lines,
+      {
+        tool,
+        points: [pos.x, pos.y],
+        color: strokeColor,
+        opacity: 1,
+        strokeWidth: 5,
+      },
+    ]);
   };
 
   const handleMouseMove = (e) => {
@@ -156,7 +163,6 @@ export default function Canvas(props) {
   // === Undo keyboard shortcut ====
 
   const handleKeyPress = useCallback((event) => {
-
     if (event.ctrlKey === true || event.metaKey === true) {
       switch (event.key) {
         case "z":
@@ -175,7 +181,6 @@ export default function Canvas(props) {
     }
   }, []);
 
-
   useEffect(() => {
     // attach the event listener
     document.addEventListener("keydown", handleKeyPress);
@@ -188,8 +193,11 @@ export default function Canvas(props) {
 
   // === File opening and saving =====
 
-  const [docURL, setDocURL] = React.useState("/test1.pdf");
-  const docPDF = usePDFRenderer(docURL);
+  const [docInfo, setDocInfo] = React.useState({
+    name: "Test PDF",
+    url: "/test1.pdf",
+  });
+  const doc = useDocument(docInfo);
 
   function handlePDFOpen(e) {
     const file = e.target.files[0];
@@ -200,7 +208,7 @@ export default function Canvas(props) {
       historyStep = 0;
       setLines([]);
 
-      setDocURL(e.target.result);
+      setDocInfo({ name: "Uploaded", url: e.target.result });
     };
     reader.readAsArrayBuffer(file);
   }
@@ -228,8 +236,8 @@ export default function Canvas(props) {
       pixelRatio: 3,
       x: 0,
       y: 0,
-      width: docPDF.width,
-      height: docPDF.height,
+      width: doc.pages[0].width,
+      height: doc.pages[0].height,
     });
     downloadURI(dataURL, "export.png");
 
@@ -286,16 +294,20 @@ export default function Canvas(props) {
           ></Input>
         </span>
         <span>
-          <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>Export as image</Button>
+          <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>
+            Export as image
+          </Button>
         </span>
         <span>
           <div style={styles.swatch} onClick={handleClick}>
             <div style={styles.color} />
           </div>
-          {displayColorPicker ? <div style={styles.popover}>
-            <div style={styles.cover} onClick={handleClose} />
-            <SketchPicker color={color} onChange={handleChange} />
-          </div> : null}
+          {displayColorPicker ? (
+            <div style={styles.popover}>
+              <div style={styles.cover} onClick={handleClose} />
+              <SketchPicker color={color} onChange={handleChange} />
+            </div>
+          ) : null}
         </span>
       </div>
       <div id="stage-container" ref={stage_container}>
@@ -307,12 +319,12 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer>
-            {docPDF.render()}
+            {doc.pages.map((page) => page.render())}
             {lines.map((line, i) => (
               <Line
                 key={i}
