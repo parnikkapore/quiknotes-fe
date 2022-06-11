@@ -1,17 +1,35 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import CssBaseline from '@mui/material/CssBaseline';
+import { ProvideAuth } from "./hooks/useAuth";
+import Canvas from "./Components/Canvas";
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+import ProfilePage from "./Components/ProfilePage";
+import PageLogin from "./Components/PageLogin";
+import PageSignUp from "./Components/PageSignUp";
+import PageForgotPassword from "./Components/PageForgotPassword";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const container = document.getElementById("root");
+const root = createRoot(container);
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <StrictMode>
+    <CssBaseline />
+    <ProvideAuth>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/Login" element={<PageLogin />} />
+          <Route path = "/SignUp" element={<PageSignUp />} />
+          <Route path="/ForgotPassword" element={<PageForgotPassword />} />
+          <Route path="/Canvas" element={<Canvas />} />
+          <Route path="/Profile" element={<ProfilePage />} />
+        </Routes>
+      </BrowserRouter>
+    </ProvideAuth>
+  </StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

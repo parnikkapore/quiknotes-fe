@@ -13,7 +13,12 @@ const pdfPageTemplate = {
   image: {},
   render() {
     return this.image ? (
-      <Image x={this.xpos} y={this.ypos} image={this.image[1]} />
+      <Image
+        key={`${this.name}-${this.xpos}-${this.ypos}`}
+        x={this.xpos}
+        y={this.ypos}
+        image={this.image[1]}
+      />
     ) : (
       <></>
     );
@@ -25,18 +30,14 @@ export const emptyPDF = { name: "None", pages: [pdfPageTemplate] };
 export async function addPDFAsync(url, setDoc, name = "Document") {
   const docP = pdfjs.getDocument(url).promise;
 
-  const pagesP = [
-    docP.then((pdf) => {
-      console.log("PDF loaded");
+  const pagesP = await docP.then((pdf) => {
+    console.log("PDF loaded");
 
-      // Fetch the first page
-      const pageNumber = 1;
-      return pdf.getPage(pageNumber);
-    }),
-  ];
+    return Array.from(Array(pdf.numPages), (_, i) => pdf.getPage(i + 1));
+  });
 
-  const parsedPagesP = [
-    pagesP[0].then(async (page) => {
+  const parsedPagesP = pagesP.map((pageP) =>
+    pageP.then(async (page) => {
       console.log("Page loaded");
 
       const scale = 1.0;
@@ -48,17 +49,36 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
         height: viewport.height,
         page: page,
       };
-    }),
-  ];
+    })
+  );
 
-  const locatedPagesP = [
-    parsedPagesP[0].then((page) => {
-      return { ...page, xpos: 0, ypos: 0 };
-    }),
-  ];
+  // Sets the x and y positions of the pages. The x position is always 0, while
+  // the Y position is 0 for the first page and MARGIN pixels below the last
+  // page's bottom for the remaining.
+  //
+  // All this is accomplished via an ungodly chain of promises.
 
-  const renderedPagesP = [
-    locatedPagesP[0].then(async (page) => {
+  const locatedPagesP = [];
+  const MARGIN = 16;
+  locatedPagesP.push(
+    parsedPagesP[0].then((page) => ({ ...page, xpos: 0, ypos: 0 }))
+  );
+  for (let i = 1; i < parsedPagesP.length; i++) {
+    locatedPagesP.push(
+      Promise.all([locatedPagesP[i - 1], parsedPagesP[i]]).then(
+        ([last, now]) => {
+          return {
+            ...now,
+            xpos: last.xpos,
+            ypos: last.ypos + last.height + MARGIN,
+          };
+        }
+      )
+    );
+  }
+
+  const renderedPagesP = locatedPagesP.map((pageP) =>
+    pageP.then(async (page) => {
       // Prepare canvas using PDF page dimensions
       const canvas = document.createElement("canvas");
       const context = canvas.getContext("2d");
@@ -76,22 +96,24 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
         ...page,
         image: canvas,
       };
-    }),
-  ];
+    })
+  );
 
   try {
-    const pageInfo = await renderedPagesP[0];
-    console.log("Page rendered");
-    const page = Object.assign(Object.create(pdfPageTemplate), {
-      xpos: pageInfo.xpos,
-      ypos: pageInfo.ypos,
-      width: pageInfo.width,
-      height: pageInfo.height,
-      image: { 1: pageInfo.image },
-    });
+    const renderedPages = await Promise.all(renderedPagesP);
+    const pages = renderedPages.map((pageInfo) =>
+      Object.assign(Object.create(pdfPageTemplate), {
+        xpos: pageInfo.xpos,
+        ypos: pageInfo.ypos,
+        width: pageInfo.width,
+        height: pageInfo.height,
+        image: { 1: pageInfo.image },
+      })
+    );
+    console.log("Pages rendered");
     setDoc({
       name: name,
-      pages: [page],
+      pages: pages,
     });
   } catch (e) {
     // PDF loading error
