@@ -14,6 +14,9 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { AiOutlineHighlight } from "react-icons/ai";
 import { BsPencil, BsEraser } from "react-icons/bs";
 import { IoHandRightOutline } from "react-icons/io5";
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import "./Canvas.css";
 
 // === For undo & redo =====
@@ -299,6 +302,18 @@ export default function Canvas(props) {
     [the_stage, stage_container]
   );
 
+  const HtmlTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: '#f5f5f9',
+      color: 'rgba(0, 0, 0, 0.87)',
+      maxWidth: 220,
+      fontSize: theme.typography.pxToRem(12),
+      border: '1px solid #dadde9',
+    },
+  }));
+
   useEffect(() => {
     window.addEventListener("resize", handleResize);
     handleResize();
@@ -338,20 +353,6 @@ export default function Canvas(props) {
           <RedoIcon />
         </IconButton>
         <span>
-          <span>{"Open file: "}</span>
-          <Input
-            type="file"
-            accept="application/pdf,image/*"
-            onChange={handleFileOpen}
-          ></Input>
-        </span>
-        <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>
-          Export as image
-        </Button>
-        <Button onClick={handleExportRasterPDF} endIcon={<IosShareIcon />}>
-          Export as bitmap PDF
-        </Button>
-        <span>
           <div style={styles.swatch} onClick={handleClick}>
             <div style={styles.color} />
           </div>
@@ -374,6 +375,37 @@ export default function Canvas(props) {
             />
           </Box>
         </span>
+        <span>
+          <HtmlTooltip
+            enterTouchDelay={0}
+            arrow={true}
+            placement="right"
+            title={
+              <React.Fragment>
+                <Input
+                  type="file"
+                  accept="application/pdf,image/*"
+                  onChange={handleFileOpen}
+                  color="primary"
+                ></Input>
+              </React.Fragment>
+            }
+          >
+            <IconButton
+              size="medium"
+              aria-label="Help"
+              color="inherit"
+            >
+              <AttachFileIcon />
+            </IconButton>
+          </HtmlTooltip>
+        </span>
+        <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>
+          Export as image
+        </Button>
+        <Button onClick={handleExportRasterPDF} endIcon={<IosShareIcon />}>
+          Export as bitmap PDF
+        </Button>
       </div>
       <div id="stage-container" ref={stage_container}>
         <ScrollableStage

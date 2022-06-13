@@ -73,15 +73,17 @@ function AppShell() {
         {user ?
           <div>
             <HtmlTooltip
+              enterTouchDelay={0}
+              leaveTouchDelay={5000}
               title={
                 <React.Fragment>
                   <Typography color="inherit"><strong>Help Page</strong></Typography>
-                  <b>{"To move around: "}</b>{"click on the canvas with hand tool and drag"}<br/>
-                  <b>{"To zoom in and out: "}</b>{"Press control and scroll"}<br/>
-                  <b>{"To scroll left and right: "}</b>{"Press shift and scroll"}<br/>
-                  <b>{"To undo: "}</b>{"Press control and z"}<br/>
-                  <b>{"To redo: "}</b>{"Press control and y or press control and shift and z"}<br/><br/>
-                  <a href = "https://github.com/parnikkapore/quiknotes-fe"><strong>Our Github repo</strong></a>
+                  <b>{"To move around: "}</b>{"click on the canvas with hand tool and drag"}<br />
+                  <b>{"To zoom in and out: "}</b>{"Press control and scroll"}<br />
+                  <b>{"To scroll left and right: "}</b>{"Press shift and scroll"}<br />
+                  <b>{"To undo: "}</b>{"Press control and z"}<br />
+                  <b>{"To redo: "}</b>{"Press control and y or press control and shift and z"}<br /><br />
+                  <a href="https://github.com/parnikkapore/quiknotes-fe"><strong>Our Github repo</strong></a>
                 </React.Fragment>
               }
             >
