@@ -5,6 +5,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from 'react-router-dom';
+import GoogleIcon from '@mui/icons-material/Google';
 
 function Copyright(props) {
     return (
@@ -99,17 +100,18 @@ export default function PageLogin() {
                             fullWidth
                             variant="contained"
                             sx={{ mt: 1, mb: 0 }}
-                            onClick={signInWithGoogle}
-                        >
-                            Sign In with Google
-                        </Button>
-                        <Button
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 1, mb: 2 }}
                             onClick={handleAnonymous}
                         >
                             Continue as Anonymous User
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            startIcon={<GoogleIcon />}
+                            sx={{ mt: 1, mb: 1 }}
+                            onClick={signInWithGoogle}
+                        >
+                            Sign In with Google
                         </Button>
                         <Grid container>
                             <Grid item xs>
