@@ -1,3 +1,4 @@
+import React from 'react';
 import Canvas from "./Components/Canvas.js";
 import PageLogin from "./Components/PageLogin";
 import { useAuth } from "./hooks/useAuth";
@@ -5,6 +6,9 @@ import { useState } from "react";
 import { AppBar, Toolbar, Typography, IconButton, MenuItem, Menu } from "@mui/material";
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from "react-router-dom";
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import HelpIcon from '@mui/icons-material/Help';
+import { styled } from '@mui/material/styles';
 import "./App.css";
 
 function App() {
@@ -44,6 +48,18 @@ function AppShell() {
     navigate("/Profile");
   }
 
+  const HtmlTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: '#f5f5f9',
+      color: 'rgba(0, 0, 0, 0.87)',
+      maxWidth: 220,
+      fontSize: theme.typography.pxToRem(12),
+      border: '1px solid #dadde9',
+    },
+  }));
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -56,6 +72,27 @@ function AppShell() {
         </Typography>
         {user ?
           <div>
+            <HtmlTooltip
+              title={
+                <React.Fragment>
+                  <Typography color="inherit"><strong>Help Page</strong></Typography>
+                  <b>{"To move around: "}</b>{"click on the canvas with hand tool and drag"}<br/>
+                  <b>{"To zoom in and out: "}</b>{"Press control and scroll"}<br/>
+                  <b>{"To scroll left and right: "}</b>{"Press shift and scroll"}<br/>
+                  <b>{"To undo: "}</b>{"Press control and z"}<br/>
+                  <b>{"To redo: "}</b>{"Press control and y or press control and shift and z"}<br/><br/>
+                  <a href = "https://github.com/parnikkapore/quiknotes-fe"><strong>Our Github repo</strong></a>
+                </React.Fragment>
+              }
+            >
+              <IconButton
+                size="medium"
+                aria-label="Help"
+                color="inherit"
+              >
+                <HelpIcon />
+              </IconButton>
+            </HtmlTooltip>
             <IconButton
               size="medium"
               aria-label="account of current user"
