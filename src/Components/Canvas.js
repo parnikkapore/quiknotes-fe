@@ -391,7 +391,7 @@ export default function Canvas(props) {
               aria-label="Stroke width"
               valueLabelDisplay="auto"
               min={1}
-              max={50}
+              max={tool === "highlighter" ? 50 : 10}
               onChange={(e, newValue) => {
                 tool === "highlighter"
                   ? setHighlighterStrokeWidth(newValue)
@@ -474,9 +474,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
         >
           <Layer ref={the_layer}>
             {doc.pages.map((page) => page.render())}
