@@ -17,6 +17,7 @@ import { IoHandRightOutline } from "react-icons/io5";
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
 import "./Canvas.css";
 
 // === For undo & redo =====
@@ -308,11 +309,30 @@ export default function Canvas(props) {
     [`& .${tooltipClasses.tooltip}`]: {
       backgroundColor: '#f5f5f9',
       color: 'rgba(0, 0, 0, 0.87)',
-      maxWidth: 220,
+      maxWidth: 240,
       fontSize: theme.typography.pxToRem(12),
       border: '1px solid #dadde9',
     },
   }));
+
+  const [importOpen, setImportOpen] = React.useState(false);
+  const [exportOpen, setExportOpen] = React.useState(false);
+
+  const handleImportClose = () => {
+    setImportOpen(false)
+  };
+
+  const handleImportOpen = () => {
+    setImportOpen(true)
+  };
+
+  const handleExportClose = () => {
+    setExportOpen(false)
+  }
+
+  const handleExportOpen = () => {
+    setExportOpen(true)
+  }
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -375,37 +395,70 @@ export default function Canvas(props) {
             />
           </Box>
         </span>
-        <span>
-          <HtmlTooltip
-            enterTouchDelay={0}
-            arrow={true}
-            placement="right"
-            title={
-              <React.Fragment>
-                <Input
-                  type="file"
-                  accept="application/pdf,image/*"
-                  onChange={handleFileOpen}
-                  color="primary"
-                ></Input>
-              </React.Fragment>
-            }
-          >
-            <IconButton
-              size="medium"
-              aria-label="Help"
-              color="inherit"
+        <ClickAwayListener onClickAway={handleImportClose}>
+          <div>
+            <span>
+              <HtmlTooltip
+                PopperProps={{
+                  disablePortal: true,
+                }}
+                onClose={handleImportClose}
+                open={importOpen}
+                disableFocusListener
+                disableHoverListener
+                disableTouchListener
+                title={
+                  <React.Fragment>
+                    <Input
+                      type="file"
+                      accept="application/pdf,image/*"
+                      onChange={handleFileOpen}
+                      color="primary"
+                    ></Input>
+                  </React.Fragment>
+                }
+              >
+                <IconButton
+                  size="medium"
+                  aria-label="Help"
+                  color="inherit"
+                  onClick={importOpen ? handleImportClose : handleImportOpen}
+                >
+                  <AttachFileIcon />
+                </IconButton>
+              </HtmlTooltip>
+            </span>
+            <HtmlTooltip
+              PopperProps={{
+                disablePortal: true,
+              }}
+              onClose={handleExportClose}
+              open={exportOpen}
+              disableFocusListener
+              disableHoverListener
+              disableTouchListener
+              title={
+                <React.Fragment>
+                  <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>
+                    Export as image
+                  </Button>
+                  <Button onClick={handleExportRasterPDF} endIcon={<IosShareIcon />}>
+                    Export as bitmap PDF
+                  </Button>
+                </React.Fragment>
+              }
             >
-              <AttachFileIcon />
-            </IconButton>
-          </HtmlTooltip>
-        </span>
-        <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>
-          Export as image
-        </Button>
-        <Button onClick={handleExportRasterPDF} endIcon={<IosShareIcon />}>
-          Export as bitmap PDF
-        </Button>
+              <IconButton
+                size="medium"
+                aria-label="Export"
+                color="inherit"
+                onClick={exportOpen ? handleExportClose : handleExportOpen}
+              >
+                <IosShareIcon />
+              </IconButton>
+            </HtmlTooltip>
+          </div>
+        </ClickAwayListener>
       </div>
       <div id="stage-container" ref={stage_container}>
         <ScrollableStage
