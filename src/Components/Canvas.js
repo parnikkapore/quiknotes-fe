@@ -14,10 +14,11 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { AiOutlineHighlight } from "react-icons/ai";
 import { BsPencil, BsEraser } from "react-icons/bs";
 import { IoHandRightOutline } from "react-icons/io5";
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
-import { styled } from '@mui/material/styles';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import { styled } from "@mui/material/styles";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 import "./Canvas.css";
+import { nanoid as rid } from "nanoid";
 
 // === For undo & redo =====
 
@@ -39,7 +40,8 @@ export default function Canvas(props) {
   });
   const [strokeColor, setStrokeColor] = React.useState("#000000");
   const [strokeWidth, setStrokeWidth] = React.useState(5);
-  const [highlighterStrokeWidth, setHighlighterStrokeWidth] = React.useState(25);
+  const [highlighterStrokeWidth, setHighlighterStrokeWidth] =
+    React.useState(25);
 
   // === Color picker functionality =====
 
@@ -93,6 +95,7 @@ export default function Canvas(props) {
     setLines([
       ...lines,
       {
+        id: rid(),
         tool,
         points: [pos.x, pos.y],
         color: strokeColor,
@@ -306,11 +309,11 @@ export default function Canvas(props) {
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#f5f5f9',
-      color: 'rgba(0, 0, 0, 0.87)',
+      backgroundColor: "#f5f5f9",
+      color: "rgba(0, 0, 0, 0.87)",
       maxWidth: 220,
       fontSize: theme.typography.pxToRem(12),
-      border: '1px solid #dadde9',
+      border: "1px solid #dadde9",
     },
   }));
 
@@ -366,12 +369,18 @@ export default function Canvas(props) {
         <span>
           <Box width={150}>
             <Slider
-              defaultValue={tool === "highlighter" ? highlighterStrokeWidth : strokeWidth}
+              defaultValue={
+                tool === "highlighter" ? highlighterStrokeWidth : strokeWidth
+              }
               aria-label="Stroke width"
               valueLabelDisplay="auto"
               min={1}
               max={50}
-              onChange={(e, newValue) => { tool === "highlighter" ? setHighlighterStrokeWidth(newValue) : setStrokeWidth(newValue) }}
+              onChange={(e, newValue) => {
+                tool === "highlighter"
+                  ? setHighlighterStrokeWidth(newValue)
+                  : setStrokeWidth(newValue);
+              }}
             />
           </Box>
         </span>
@@ -391,11 +400,7 @@ export default function Canvas(props) {
               </React.Fragment>
             }
           >
-            <IconButton
-              size="medium"
-              aria-label="Help"
-              color="inherit"
-            >
+            <IconButton size="medium" aria-label="Help" color="inherit">
               <AttachFileIcon />
             </IconButton>
           </HtmlTooltip>
@@ -416,15 +421,15 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
             {doc.pages.map((page) => page.render())}
-            {lines.map((line, i) => (
+            {lines.map((line) => (
               <Line
-                key={i}
+                key={line.id}
                 points={line.points}
                 stroke={line.color}
                 opacity={line.opacity}

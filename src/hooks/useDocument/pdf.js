@@ -1,10 +1,13 @@
 import { Image } from "react-konva";
 import React from "react";
 import * as pdfjs from "pdfjs-dist/webpack";
+import { nanoid as rid } from "nanoid";
 
 // Functions for handling PDF pages
 
 const pdfPageTemplate = {
+  id: "foo",
+  pageNumber: 0,
   name: "Document",
   xpos: 0,
   ypos: 0,
@@ -13,12 +16,7 @@ const pdfPageTemplate = {
   image: {},
   render() {
     return this.image ? (
-      <Image
-        key={`${this.name}-${this.xpos}-${this.ypos}`}
-        x={this.xpos}
-        y={this.ypos}
-        image={this.image[1]}
-      />
+      <Image key={this.id} x={this.xpos} y={this.ypos} image={this.image[1]} />
     ) : (
       <></>
     );
@@ -101,8 +99,10 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
 
   try {
     const renderedPages = await Promise.all(renderedPagesP);
-    const pages = renderedPages.map((pageInfo) =>
+    const pages = renderedPages.map((pageInfo, i) =>
       Object.assign(Object.create(pdfPageTemplate), {
+        id: rid(),
+        pageNumber: i,
         xpos: pageInfo.xpos,
         ypos: pageInfo.ypos,
         width: pageInfo.width,
