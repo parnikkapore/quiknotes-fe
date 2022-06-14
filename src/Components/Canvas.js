@@ -393,7 +393,7 @@ export default function Canvas(props) {
               aria-label="Stroke width"
               valueLabelDisplay="auto"
               min={1}
-              max={tool === "highlighter" ? 50 : 10}
+              max={tool === "pen" ? 10 : 50}
               onChange={(e, newValue) => {
                 tool === "highlighter"
                   ? setHighlighterStrokeWidth(newValue)
