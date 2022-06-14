@@ -113,6 +113,7 @@ export default function Canvas(props) {
     let lastLine = lines[lines.length - 1];
     // add point
     lastLine.points = lastLine.points.concat([point.x, point.y]);
+    // update color
     lastLine.color = strokeColor;
     if (tool === "highlighter") {
       lastLine.opacity = 0.5;
@@ -138,9 +139,6 @@ export default function Canvas(props) {
       newLines.push({
         ...lastLine,
         points: lastLine.points.concat(lastLine.points),
-        color: lastLine.color.concat(lastLine.color),
-        opacity: lastLine.opacity.concat(lastLine.opacity),
-        strokeWidth: lastLine.strokeWidth.concat(lastLine.strokeWidth),
       });
       setLines(newLines);
     }
