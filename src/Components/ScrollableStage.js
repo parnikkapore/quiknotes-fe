@@ -136,7 +136,7 @@ function _ScrollableStage(props, ref) {
       stage.position({ x, y });
     }
 
-    if (e.evt.ctrlKey) {
+    if (e.evt.ctrlKey || e.evt.metaKey) {
       handleZoom(e);
     } else if (e.evt.shiftKey) {
       handleHorizontalScroll(e);
@@ -153,7 +153,7 @@ function _ScrollableStage(props, ref) {
       height={10}
       draggable={props.enabled ? "draggable" : false}
       onWheel={handleStageWheel}
-      onTouchStart={props.enabled ? () => {} : props.onTouchStart}
+      onTouchStart={props.enabled ? () => { } : props.onTouchStart}
       onTouchMove={props.enabled ? handleStagePinchMove : props.onTouchMove}
       onTouchEnd={props.enabled ? handleStagePinchEnd : props.onTouchEnd}
       onMouseDown={props.onMouseDown}
