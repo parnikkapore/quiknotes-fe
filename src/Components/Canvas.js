@@ -323,6 +323,7 @@ export default function Canvas(props) {
 
   const handleImportOpen = () => {
     setImportOpen(true)
+    setExportOpen(false)
   };
 
   const handleExportClose = () => {
@@ -331,6 +332,7 @@ export default function Canvas(props) {
 
   const handleExportOpen = () => {
     setExportOpen(true)
+    setImportOpen(false)
   }
 
   useEffect(() => {
