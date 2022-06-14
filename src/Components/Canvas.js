@@ -367,7 +367,7 @@ export default function Canvas(props) {
         <span>
           <Box width={150}>
             <Slider
-              defaultValue={
+              value={
                 tool === "highlighter" ? highlighterStrokeWidth : strokeWidth
               }
               aria-label="Stroke width"
