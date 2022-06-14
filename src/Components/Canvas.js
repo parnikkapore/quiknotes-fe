@@ -40,7 +40,8 @@ export default function Canvas(props) {
   });
   const [strokeColor, setStrokeColor] = React.useState("#000000");
   const [strokeWidth, setStrokeWidth] = React.useState(5);
-  const [highlighterStrokeWidth, setHighlighterStrokeWidth] = React.useState(25);
+  const [highlighterStrokeWidth, setHighlighterStrokeWidth] =
+    React.useState(25);
 
   // === Color picker functionality =====
 
@@ -114,6 +115,7 @@ export default function Canvas(props) {
     let lastLine = lines[lines.length - 1];
     // add point
     lastLine.points = lastLine.points.concat([point.x, point.y]);
+    // update color
     lastLine.color = strokeColor;
     if (tool === "highlighter") {
       lastLine.opacity = 0.5;
@@ -139,9 +141,6 @@ export default function Canvas(props) {
       newLines.push({
         ...lastLine,
         points: lastLine.points.concat(lastLine.points),
-        color: lastLine.color.concat(lastLine.color),
-        opacity: lastLine.opacity.concat(lastLine.opacity),
-        strokeWidth: lastLine.strokeWidth.concat(lastLine.strokeWidth),
       });
       setLines(newLines);
     }
@@ -311,7 +310,7 @@ export default function Canvas(props) {
       color: 'rgba(0, 0, 0, 0.87)',
       maxWidth: 240,
       fontSize: theme.typography.pxToRem(12),
-      border: '1px solid #dadde9',
+      border: "1px solid #dadde9",
     },
   }));
 
@@ -386,12 +385,18 @@ export default function Canvas(props) {
         <span>
           <Box width={150}>
             <Slider
-              defaultValue={tool === "highlighter" ? highlighterStrokeWidth : strokeWidth}
+              value={
+                tool === "highlighter" ? highlighterStrokeWidth : strokeWidth
+              }
               aria-label="Stroke width"
               valueLabelDisplay="auto"
               min={1}
               max={50}
-              onChange={(e, newValue) => { tool === "highlighter" ? setHighlighterStrokeWidth(newValue) : setStrokeWidth(newValue) }}
+              onChange={(e, newValue) => {
+                tool === "highlighter"
+                  ? setHighlighterStrokeWidth(newValue)
+                  : setStrokeWidth(newValue);
+              }}
             />
           </Box>
         </span>
@@ -469,9 +474,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
             {doc.pages.map((page) => page.render())}
