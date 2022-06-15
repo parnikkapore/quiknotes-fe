@@ -1,7 +1,11 @@
 import { Image } from "react-konva";
+import { nanoid as rid } from "nanoid";
+
 // useDocument/image.js - Image import
 
 const imagePageTemplate = {
+  id: "foo",
+  pageNumber: 0,
   xpos: 0,
   ypos: 0,
   width: 0,
@@ -9,7 +13,7 @@ const imagePageTemplate = {
   image: null,
   render() {
     return this.image ? (
-      <Image x={this.xpos} y={this.ypos} image={this.image} />
+      <Image key={this.id} x={this.xpos} y={this.ypos} image={this.image} />
     ) : (
       <></>
     );
@@ -21,6 +25,7 @@ export function addImageAsync(url, setDoc, name = "Image") {
   image.src = url;
   image.onload = function (e) {
     const page = Object.assign(Object.create(imagePageTemplate), {
+      id: rid(),
       width: image.width,
       height: image.height,
       image: image,
