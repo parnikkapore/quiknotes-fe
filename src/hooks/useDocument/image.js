@@ -30,9 +30,14 @@ export function addImageAsync(url, setDoc, name = "Image") {
       height: image.height,
       image: image,
     });
+
+    const pagemap = new Map();
+    pagemap.add(page.id, page);
+
     setDoc({
       name: name,
       pages: [page],
+      pagemap: pagemap,
     });
   };
   image.onerror = function (e) {

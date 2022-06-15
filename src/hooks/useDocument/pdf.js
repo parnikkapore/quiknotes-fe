@@ -99,6 +99,7 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
 
   try {
     const renderedPages = await Promise.all(renderedPagesP);
+
     const pages = renderedPages.map((pageInfo, i) =>
       Object.assign(Object.create(pdfPageTemplate), {
         id: rid(),
@@ -110,10 +111,17 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
         image: { 1: pageInfo.image },
       })
     );
+
+    const pagemap = new Map();
+    renderedPages.forEach((page) => {
+      pagemap.add(page.id, page);
+    });
+
     console.log("Pages rendered");
     setDoc({
       name: name,
       pages: pages,
+      pagemap: pagemap,
     });
   } catch (e) {
     // PDF loading error
