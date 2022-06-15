@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect } from "react";
+import Konva from "konva";
 import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import useDocument from "../hooks/useDocument";
@@ -132,7 +133,7 @@ export default function Canvas(props) {
     }
 
     // if there's only one point, dupe it so it draws properly
-    const lastLine =
+    let lastLine =
       currentLine.points.length === 2
         ? {
             ...currentLine,
@@ -140,6 +141,33 @@ export default function Canvas(props) {
           }
         : currentLine;
 
+    // Find the page that this line should belong to
+    {
+      let bestPage = "";
+      let bestHeight = -Infinity;
+      const lineBbox = new Konva.Line({
+        points: lastLine.points,
+        strokeWidth: lastLine.strokeWidth,
+      }).getClientRect();
+
+      for (const cPage of doc.pages) {
+        const cHeight =
+          Math.min(cPage.ypos + cPage.height, lineBbox.y + lineBbox.height) -
+          Math.max(cPage.ypos, lineBbox.y);
+        if (cHeight > bestHeight) {
+          bestHeight = cHeight;
+          bestPage = cPage.id;
+        }
+      }
+
+      // console.log(doc.pagemap.get(bestPage).pageNumber);
+      lastLine.page = bestPage;
+    }
+
+    // Convert all coordinates to page-relative
+    lastLine.points = coordsToLocal(lastLine);
+
+    // Finally make a new set of lines with our new line
     const newLines = lines.concat([lastLine]);
 
     // add to history
@@ -326,6 +354,43 @@ export default function Canvas(props) {
     },
   }));
 
+  // === Convert line points between global and page-relative coordinates =====
+
+  function coordsToLocal(line) {
+    const page = doc.pagemap.get(line.page);
+    const [pageX, pageY] = [page.xpos, page.ypos];
+    const newPoints = [];
+    for (let i = 0; i < line.points.length; i++) {
+      if (i % 2 === 0) {
+        // x
+        newPoints.push(line.points[i] - pageX);
+      } else {
+        // y
+        newPoints.push(line.points[i] - pageY);
+      }
+    }
+    return newPoints;
+  }
+
+  function coordsToGlobal(line) {
+    const page = doc.pagemap.get(line.page);
+    const [pageX, pageY] = [page?.xpos || 0, page?.ypos || 0];
+    const newPoints = [];
+    for (let i = 0; i < line.points.length; i++) {
+      if (i % 2 === 0) {
+        // x
+        newPoints.push(line.points[i] + pageX);
+      } else {
+        // y
+        newPoints.push(line.points[i] + pageY);
+      }
+    }
+    console.log("!b", line.id, page?.ypos || "NilPos", newPoints);
+    return newPoints;
+  }
+
+  // === Actual app contents =====
+
   return (
     <div id="canvas">
       <div id="toolbar">
@@ -431,7 +496,7 @@ export default function Canvas(props) {
             {lines.map((line) => (
               <Line
                 key={line.id}
-                points={line.points}
+                points={coordsToGlobal(line)}
                 stroke={line.color}
                 opacity={line.opacity}
                 strokeWidth={line.strokeWidth}
