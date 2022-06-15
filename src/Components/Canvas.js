@@ -385,7 +385,7 @@ export default function Canvas(props) {
         newPoints.push(line.points[i] + pageY);
       }
     }
-    console.log("!b", line.id, page?.ypos || "NilPos", newPoints);
+    // console.log("!b", line.id, page?.ypos || "NilPos", newPoints);
     return newPoints;
   }
 
