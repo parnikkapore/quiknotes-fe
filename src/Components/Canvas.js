@@ -20,6 +20,7 @@ import { styled } from "@mui/material/styles";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import "./Canvas.css";
 import { nanoid as rid } from "nanoid";
+import CLine from "./Canvas/Line";
 
 // === For undo & redo =====
 
@@ -501,18 +502,7 @@ export default function Canvas(props) {
           <Layer ref={the_layer}>
             {doc.pages.map((page) => page.render())}
             {lines.map((line) => (
-              <Line
-                key={line.id}
-                points={coordsToGlobal(line)}
-                stroke={line.color}
-                opacity={line.opacity}
-                strokeWidth={line.strokeWidth}
-                tension={0.5}
-                lineCap="round"
-                globalCompositeOperation={
-                  line.tool === "eraser" ? "destination-out" : "source-over"
-                }
-              />
+              <CLine key={line.id} line={line} doc={doc} />
             ))}
             {currentLine !== null && (
               <Line
