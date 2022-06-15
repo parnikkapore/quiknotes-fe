@@ -389,6 +389,13 @@ export default function Canvas(props) {
     return newPoints;
   }
 
+  // === Debugging use only =====
+
+  window._ = window._ || {};
+  window._.shiftPage = () => {
+    doc.pages[1].xpos += 50;
+  };
+
   // === Actual app contents =====
 
   return (
