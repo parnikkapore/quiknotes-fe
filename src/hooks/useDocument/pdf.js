@@ -114,7 +114,7 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
 
     const pagemap = new Map();
     renderedPages.forEach((page) => {
-      pagemap.add(page.id, page);
+      pagemap.set(page.id, page);
     });
 
     console.log("Pages rendered");

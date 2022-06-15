@@ -32,7 +32,7 @@ export function addImageAsync(url, setDoc, name = "Image") {
     });
 
     const pagemap = new Map();
-    pagemap.add(page.id, page);
+    pagemap.set(page.id, page);
 
     setDoc({
       name: name,

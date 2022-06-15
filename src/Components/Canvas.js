@@ -30,7 +30,7 @@ export default function Canvas(props) {
 
   const [tool, setTool] = React.useState("pen");
   const [lines, setLines] = React.useState([]);
-  const isDrawing = React.useRef(false);
+  const [currentLine, setCurrentLine] = React.useState(null);
   const [displayColorPicker, setDisplayColorPicker] = React.useState(false);
   const [color, setColor] = React.useState({
     r: "0",
@@ -90,66 +90,69 @@ export default function Canvas(props) {
   });
 
   const handleMouseDown = (e) => {
-    isDrawing.current = true;
     const pos = e.target.getStage().getRelativePointerPosition();
-    setLines([
-      ...lines,
-      {
-        id: rid(),
-        tool,
-        points: [pos.x, pos.y],
-        color: strokeColor,
-        opacity: 1,
-        strokeWidth: strokeWidth,
-      },
-    ]);
+    setCurrentLine({
+      id: rid(),
+      tool,
+      points: [pos.x, pos.y],
+      color: strokeColor,
+      opacity: 1,
+      strokeWidth: strokeWidth,
+    });
   };
 
   const handleMouseMove = (e) => {
     // no drawing - skipping
-    if (!isDrawing.current) {
+    if (currentLine === null) {
       return;
     }
 
     const stage = e.target.getStage();
     const point = stage.getRelativePointerPosition();
-    let lastLine = lines[lines.length - 1];
-    // add point
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
-    // update color
-    lastLine.color = strokeColor;
-    if (tool === "highlighter") {
-      lastLine.opacity = 0.5;
-      lastLine.strokeWidth = highlighterStrokeWidth;
-    }
 
-    // replace last
-    setLines(lines.slice(0, -1).concat(lastLine));
+    setCurrentLine((_currentLine) => {
+      const currentLine = { ..._currentLine };
+
+      // add point
+      currentLine.points = _currentLine.points.concat([point.x, point.y]);
+
+      // update color
+      currentLine.color = strokeColor;
+      if (tool === "highlighter") {
+        currentLine.opacity = 0.5;
+        currentLine.strokeWidth = highlighterStrokeWidth;
+      }
+
+      return currentLine;
+    });
   };
 
   const handleMouseUp = () => {
-    if (isDrawing.current === false) {
+    if (currentLine === null) {
       return;
     }
 
-    isDrawing.current = false;
-    let newLines = lines;
-
     // if there's only one point, dupe it so it draws properly
-    const lastLine = lines[lines.length - 1];
-    if (lastLine.points.length === 2) {
-      newLines = lines.slice(0, -1);
-      newLines.push({
-        ...lastLine,
-        points: lastLine.points.concat(lastLine.points),
-      });
-      setLines(newLines);
-    }
+    const lastLine =
+      currentLine.points.length === 2
+        ? {
+            ...currentLine,
+            points: currentLine.points.concat(currentLine.points),
+          }
+        : currentLine;
+
+    const newLines = lines.concat([lastLine]);
+    console.log("!a", lastLine);
 
     // add to history
     history = history.slice(0, historyStep + 1);
     history = history.concat([newLines]);
     historyStep += 1;
+
+    // clear current line
+    setCurrentLine(null);
+
+    setLines(newLines);
   };
 
   // === Undo and Redo ====
@@ -439,6 +442,22 @@ export default function Canvas(props) {
                 }
               />
             ))}
+            {currentLine !== null && (
+              <Line
+                key={currentLine.id}
+                points={currentLine.points}
+                stroke={currentLine.color}
+                opacity={currentLine.opacity}
+                strokeWidth={currentLine.strokeWidth}
+                tension={0.5}
+                lineCap="round"
+                globalCompositeOperation={
+                  currentLine.tool === "eraser"
+                    ? "destination-out"
+                    : "source-over"
+                }
+              />
+            )}
           </Layer>
         </ScrollableStage>
       </div>
