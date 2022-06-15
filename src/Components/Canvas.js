@@ -56,7 +56,6 @@ export default function Canvas(props) {
   const handleChange = (color) => {
     setColor(color.rgb);
     setStrokeColor(color.hex);
-    console.log(strokeColor);
   };
 
   const styles = reactCSS({
@@ -142,7 +141,6 @@ export default function Canvas(props) {
         : currentLine;
 
     const newLines = lines.concat([lastLine]);
-    console.log("!a", lastLine);
 
     // add to history
     history = history.slice(0, historyStep + 1);
@@ -306,6 +304,16 @@ export default function Canvas(props) {
     [the_stage, stage_container]
   );
 
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [handleResize]);
+
+  // === Tooltips =====
+
   const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
@@ -317,14 +325,6 @@ export default function Canvas(props) {
       border: "1px solid #dadde9",
     },
   }));
-
-  useEffect(() => {
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [handleResize]);
 
   return (
     <div id="canvas">
