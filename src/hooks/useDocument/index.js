@@ -57,9 +57,10 @@ export default function useDocument(docInfo) {
               height={50}
               fill="red"
               cornerRadius={10}
+              onMouseDown={(e) => {
+                e.cancelBubble = true;
+              }}
               onClick={(e) => {
-                console.log(e);
-
                 addPage(page.pageNumber);
                 e.cancelBubble = true;
               }}
