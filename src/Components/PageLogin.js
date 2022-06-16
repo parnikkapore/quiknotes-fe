@@ -24,7 +24,8 @@ const theme = createTheme();
 
 export default function PageLogin() {
 
-    const { signInWithGoogle, signInAnonymous, signin, user } = useAuth();
+    const { signInWithGoogle, signInAnonymous, signin, user, errorMessage } = useAuth();
+    const [error, setError] = React.useState("");
 
     const navigate = useNavigate()
 
@@ -36,10 +37,22 @@ export default function PageLogin() {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         signin(data.get('email'), data.get('password'));
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+        console.log(errorMessage);
+        if (errorMessage === "Firebase: Error (auth/user-not-found).") {
+            setError("User not found");
+        }
+        else if (errorMessage === "Firebase: Error (auth/invalid-email).") {
+            setError("Invalid email");
+        }
+        else if (errorMessage === "Firebase: Error (auth/wrong-password).") {
+            setError("Wrong password");
+        }
+        else if(errorMessage === "Firebase: Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later. (auth/too-many-requests).") {
+            setError("Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.");
+        }
+        else{
+            setError(errorMessage);
+        }
         if (user) {
             navigate("/");
         }
@@ -84,6 +97,9 @@ export default function PageLogin() {
                             id="password"
                             autoComplete="current-password"
                         />
+                        <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                            {error}
+                        </Typography>
                         <FormControlLabel
                             control={<Checkbox value="remember" color="primary" />}
                             label="Remember me"
