@@ -68,8 +68,14 @@ function useProvideAuth() {
     setUser(false);
   };
 
-  const SendPasswordResetEmail = (email) => {
-    return sendPasswordResetEmail(firebaseAuth, email)
+  const SendPasswordResetEmail = async (email) => {
+    try {
+      await sendPasswordResetEmail(firebaseAuth, email);
+      setErrorMessage('Password reset email sent');
+    } catch (error) {
+      setErrorMessage(error.message);
+      return error.message;
+    }
   };
 
   const confirmPasswordReset = (code, password) => {
