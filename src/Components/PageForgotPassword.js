@@ -81,7 +81,7 @@ export default function PageForgotPassword() {
                                     autoComplete="email"
                                 />
                                 <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                                    {error}
+                                    *{error}
                                 </Typography>
                             </Grid>
                         </Grid>
