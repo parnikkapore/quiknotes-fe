@@ -98,7 +98,7 @@ export default function PageLogin() {
                             autoComplete="current-password"
                         />
                         <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                            *{error}
+                            {error}
                         </Typography>
                         <FormControlLabel
                             control={<Checkbox value="remember" color="primary" />}

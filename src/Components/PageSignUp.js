@@ -113,7 +113,7 @@ export default function SignUp() {
                                     autoComplete="new-password"
                                 />
                                 <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                                    *{error}
+                                    {error}
                                 </Typography>
                             </Grid>
                         </Grid>
