@@ -6,8 +6,6 @@ import { nanoid as rid } from "nanoid";
 const imagePageTemplate = {
   id: "foo",
   pageNumber: 0,
-  xpos: 0,
-  ypos: 0,
   width: 0,
   height: 0,
   image: null,
@@ -31,13 +29,9 @@ export function addImageAsync(url, setDoc, name = "Image") {
       image: image,
     });
 
-    const pagemap = new Map();
-    pagemap.set(page.id, page);
-
     setDoc({
       name: name,
       pages: [page],
-      pagemap: pagemap,
     });
   };
   image.onerror = function (e) {

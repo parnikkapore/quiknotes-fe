@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import Konva from "konva";
 import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
-import useDocument from "../hooks/useDocument";
+import useDocument, { Page } from "../hooks/useDocument";
 import { PDFDocument } from "pdf-lib";
 import { Button, IconButton, Input, Box, Slider } from "@mui/material";
 import UndoIcon from "@mui/icons-material/Undo";
@@ -140,7 +140,7 @@ export default function Canvas(props) {
             ...currentLine,
             points: currentLine.points.concat(currentLine.points),
           }
-        : currentLine;
+        : { ...currentLine };
 
     // Find the page that this line should belong to
     {
@@ -500,7 +500,9 @@ export default function Canvas(props) {
           onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
-            {doc.pages.map((page) => page.render())}
+            {doc.pages.map((page) => (
+              <Page key={page.id} page={page} />
+            ))}
             {lines.map((line) => (
               <CLine key={line.id} line={line} doc={doc} />
             ))}
