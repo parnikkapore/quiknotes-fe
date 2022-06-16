@@ -8,7 +8,7 @@ const imagePageTemplate = {
   pageNumber: 0,
   width: 0,
   height: 0,
-  image: null,
+  image: [null, null],
   render() {
     return this.image ? (
       <Image key={this.id} x={this.xpos} y={this.ypos} image={this.image} />
@@ -26,7 +26,7 @@ export function addImageAsync(url, setDoc, name = "Image") {
       id: rid(),
       width: image.width,
       height: image.height,
-      image: image,
+      image: [null, image],
     });
 
     setDoc({
