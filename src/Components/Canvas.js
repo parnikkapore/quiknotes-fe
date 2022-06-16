@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import Konva from "konva";
 import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
-import useDocument, { Page } from "../hooks/useDocument";
+import useDocument from "../hooks/useDocument";
 import { PDFDocument } from "pdf-lib";
 import { Button, IconButton, Input, Box, Slider } from "@mui/material";
 import UndoIcon from "@mui/icons-material/Undo";
@@ -240,7 +240,7 @@ export default function Canvas(props) {
     type: "application/pdf",
     url: "/test1.pdf",
   });
-  const doc = useDocument(docInfo);
+  const [doc, DocRenderer] = useDocument(docInfo);
 
   function handleFileOpen(e) {
     const file = e.target.files[0];
@@ -500,9 +500,7 @@ export default function Canvas(props) {
           onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
-            {doc.pages.map((page) => (
-              <Page key={page.id} page={page} />
-            ))}
+            <DocRenderer doc={doc} />
             {lines.map((line) => (
               <CLine key={line.id} line={line} doc={doc} />
             ))}

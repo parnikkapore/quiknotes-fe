@@ -11,7 +11,7 @@ export default function layout(doc) {
   let currentY = 0;
 
   for (let i = 0; i < pages.length; i++) {
-    laid.push({ ...pages[i], xpos: 0, ypos: currentY });
+    laid.push({ ...pages[i], pageNumber: i, xpos: 0, ypos: currentY });
     currentY += pages[i].height + MARGIN;
   }
 
