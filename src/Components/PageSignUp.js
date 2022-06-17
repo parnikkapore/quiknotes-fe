@@ -30,25 +30,27 @@ const theme = createTheme();
 export default function SignUp() {
 
     const { signup, errorMessage } = useAuth();
-    const [error, setError] = React.useState("");
+
+    const renderErrorMessage = (errorMessage) => {
+        console.log(errorMessage);
+        if (errorMessage === "Firebase: Password should be at least 6 characters (auth/weak-password).") {
+            return "Password should be at least 6 characters";
+        }
+        else if (errorMessage === "Firebase: Error (auth/invalid-email).") {
+            return "Invalid email";
+        }
+        else if (errorMessage === "Firebase: Error (auth/email-already-in-use).") {
+            return "Email already in use";
+        }
+        else {
+            return errorMessage;
+        }
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         signup(data.get('email'), data.get('password'));
-        console.log(errorMessage);
-        if (errorMessage === "Firebase: Password should be at least 6 characters (auth/weak-password).") {
-            setError("Password should be at least 6 characters");
-        }
-        else if (errorMessage === "Firebase: Error (auth/invalid-email).") {
-            setError("Invalid email");
-        }
-        else if (errorMessage === "Firebase: Error (auth/email-already-in-use).") {
-            setError("Email already in use");
-        }
-        else {
-            setError(errorMessage);
-        }
     };
 
     return (
@@ -113,7 +115,7 @@ export default function SignUp() {
                                     autoComplete="new-password"
                                 />
                                 <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                                    {error}
+                                    {renderErrorMessage(errorMessage)}
                                 </Typography>
                             </Grid>
                         </Grid>
