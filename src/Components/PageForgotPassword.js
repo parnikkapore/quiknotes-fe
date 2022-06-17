@@ -30,7 +30,6 @@ const theme = createTheme();
 export default function PageForgotPassword() {
 
     const { SendPasswordResetEmail, errorMessage } = useAuth();
-    const [error, setError] = React.useState("");
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -39,15 +38,18 @@ export default function PageForgotPassword() {
             email: data.get('email'),
         });
         SendPasswordResetEmail(data.get('email'));
+    }
+    
+    const renderErrorMessage = (errorMessage) => {
         console.log(errorMessage);
         if (errorMessage === "Firebase: Error (auth/invalid-email).") {
-            setError("Invalid email");
+            return "Invalid email";
         }
         else if (errorMessage === "Firebase: Error (auth/missing-email).") {
-            setError("Email is required");
+            return "Email is required";
         }
         else {
-            setError(errorMessage);
+            return errorMessage;
         }
     };
 
@@ -81,7 +83,7 @@ export default function PageForgotPassword() {
                                     autoComplete="email"
                                 />
                                 <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                                    {error}
+                                    {renderErrorMessage(errorMessage)}
                                 </Typography>
                             </Grid>
                         </Grid>
