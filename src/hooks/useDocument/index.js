@@ -3,6 +3,65 @@ import { addImageAsync } from "./image";
 import layout from "./layouter";
 import React from "react";
 import { Image, Rect } from "react-konva";
+import Page from "./page";
+
+function addPage([rawDoc, setRawDoc], pageNr) {
+  const docPages = rawDoc.pages.slice();
+  const currentPage = docPages[pageNr];
+  docPages.splice(
+    pageNr + 1,
+    0,
+    new Page({ width: currentPage.width, height: currentPage.height })
+  );
+  setRawDoc({ ...rawDoc, pages: docPages });
+}
+
+function DocumentRenderer([rawDoc, setRawDoc]) {
+  return (props) =>
+    props.doc.pages.map((page) =>
+      page.image ? (
+        <React.Fragment key={page.id}>
+          <Image
+            key={page.id}
+            x={page.xpos}
+            y={page.ypos}
+            width={page.width}
+            height={page.height}
+            image={page.image[1]}
+            fillLinearGradientStartPoint={{ x: -50, y: -50 }}
+            fillLinearGradientEndPoint={{ x: 50, y: 50 }}
+            fillLinearGradientColorStops={[0, "red", 1, "yellow"]}
+          />
+          <Rect
+            x={page.xpos + page.width + 16}
+            y={page.ypos + page.height - 50}
+            width={50}
+            height={50}
+            fill="red"
+            cornerRadius={10}
+            onMouseDown={(e) => {
+              e.cancelBubble = true;
+            }}
+            onClick={(e) => {
+              addPage([rawDoc, setRawDoc], page.pageNumber);
+              e.cancelBubble = true;
+            }}
+          />
+        </React.Fragment>
+      ) : (
+        <>
+          <Rect
+            x={15}
+            y={17}
+            width={50}
+            height={50}
+            fill="violet"
+            cornerRadius={10}
+          />
+        </>
+      )
+    );
+}
 
 export default function useDocument(docInfo) {
   const [rawDoc, setRawDoc] = React.useState(emptyPDF);
@@ -30,58 +89,10 @@ export default function useDocument(docInfo) {
     setLaidDoc(layout(rawDoc));
   }, [rawDoc]);
 
-  const addPage = React.useMemo(
-    () => (pageNr) => {
-      const docPages = rawDoc.pages.slice();
-      docPages.splice(pageNr + 1, 0, emptyPDF.pages[0]);
-      setRawDoc({ ...rawDoc, pages: docPages });
-    },
+  const renderer = React.useMemo(
+    () => DocumentRenderer([rawDoc, setRawDoc]),
     [rawDoc]
   );
 
-  const DocumentRenderer = React.useMemo(
-    () => (props) => {
-      return props.doc.pages.map((page) =>
-        page.image ? (
-          <React.Fragment key={page.id}>
-            <Image
-              key={page.id}
-              x={page.xpos}
-              y={page.ypos}
-              image={page.image[1]}
-            />
-            <Rect
-              x={page.xpos + page.width + 16}
-              y={page.ypos + page.height - 50}
-              width={50}
-              height={50}
-              fill="red"
-              cornerRadius={10}
-              onMouseDown={(e) => {
-                e.cancelBubble = true;
-              }}
-              onClick={(e) => {
-                addPage(page.pageNumber);
-                e.cancelBubble = true;
-              }}
-            />
-          </React.Fragment>
-        ) : (
-          <>
-            <Rect
-              x={15}
-              y={17}
-              width={50}
-              height={50}
-              fill="violet"
-              cornerRadius={10}
-            />
-          </>
-        )
-      );
-    },
-    [addPage]
-  );
-
-  return [laidDoc, DocumentRenderer];
+  return [laidDoc, renderer];
 }
