@@ -18,6 +18,8 @@ import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
+import { addDoc, collection, doc as firebaseDoc, setDoc, getDoc } from "firebase/firestore";
+import { db, useAuth } from "../hooks/useAuth";
 import "./Canvas.css";
 
 // === For undo & redo =====
@@ -26,6 +28,9 @@ let history = [[]];
 let historyStep = 0;
 
 export default function Canvas(props) {
+
+  const { user } = useAuth();
+
   // === Paint functionality =====
 
   const [tool, setTool] = React.useState("pen");
@@ -225,6 +230,16 @@ export default function Canvas(props) {
     });
   }
 
+  const handleSave = () => {
+    const docData = {
+      name: user?.displayName,
+      uid: user?.uid,
+      pages: docInfo,
+      lines: lines
+    }
+    setDoc(firebaseDoc(db, "Test", user?.uid + docInfo.name), docData);
+  }
+  
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
 
@@ -367,6 +382,7 @@ export default function Canvas(props) {
             <IoHandRightOutline size={30} />
           </ToggleButton>
         </ToggleButtonGroup>
+        <Button onClick={handleSave}>Save</Button>
         <IconButton aria-label="Undo" onClick={handleUndo}>
           <UndoIcon />
         </IconButton>
