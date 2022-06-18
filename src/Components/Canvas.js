@@ -382,7 +382,7 @@ export default function Canvas(props) {
         }
         //*/
 
-        console.log(line.points, linePairs);
+        // console.log(line.points, linePairs);
 
         const svgPath = "M " + linePairs.join(" L ");
         const { r: cr, g: cg, b: cb } = colord(line.color).toRgb();
