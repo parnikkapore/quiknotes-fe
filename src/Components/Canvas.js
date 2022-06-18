@@ -3,7 +3,11 @@ import Konva from "konva";
 import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import useDocument from "../hooks/useDocument";
-import { PDFDocument } from "pdf-lib";
+import {
+  PDFDocument,
+  rgb as PDFrgb,
+  LineCapStyle as PDFcapStyle,
+} from "pdf-lib";
 import { Button, IconButton, Input, Box, Slider } from "@mui/material";
 import UndoIcon from "@mui/icons-material/Undo";
 import RedoIcon from "@mui/icons-material/Redo";
@@ -21,6 +25,7 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import "./Canvas.css";
 import { nanoid as rid } from "nanoid";
 import CLine from "./Canvas/Line";
+import { colord } from "colord";
 
 // === For undo & redo =====
 
@@ -371,11 +376,23 @@ export default function Canvas(props) {
         for (let i = 0; i < line.points.length - 1; i += 2) {
           linePairs.push(`${line.points[i]} ${line.points[i + 1]}`);
         }
-        console.log(line, linePairs);
+        /* // point hack (SVG is differently insane about this)
+        if (linePairs.length === 2 && linePairs[0] === linePairs[1]) {
+          linePairs.pop();
+        }
+        //*/
+
+        console.log(line.points, linePairs);
+
         const svgPath = "M " + linePairs.join(" L ");
+        const { r: cr, g: cg, b: cb } = colord(line.color).toRgb();
         pages[pageId].drawSvgPath(svgPath, {
           x: 0,
           y: pages[pageId].getHeight(),
+          borderWidth: line.strokeWidth,
+          opacity: line.opacity,
+          borderColor: PDFrgb(cr / 255, cg / 255, cb / 255),
+          borderLineCap: PDFcapStyle.Round,
         });
       }
 
