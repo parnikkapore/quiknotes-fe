@@ -29,15 +29,27 @@ const theme = createTheme();
 
 export default function SignUp() {
 
-    const { signup } = useAuth();
+    const { signup, errorMessage } = useAuth();
+
+    const renderErrorMessage = (errorMessage) => {
+        console.log(errorMessage);
+        if (errorMessage === "Firebase: Password should be at least 6 characters (auth/weak-password).") {
+            return "Password should be at least 6 characters";
+        }
+        else if (errorMessage === "Firebase: Error (auth/invalid-email).") {
+            return "Invalid email";
+        }
+        else if (errorMessage === "Firebase: Error (auth/email-already-in-use).") {
+            return "Email already in use";
+        }
+        else {
+            return errorMessage;
+        }
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
         signup(data.get('email'), data.get('password'));
     };
 
@@ -102,6 +114,9 @@ export default function SignUp() {
                                     id="password"
                                     autoComplete="new-password"
                                 />
+                                <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                                    {renderErrorMessage(errorMessage)}
+                                </Typography>
                             </Grid>
                         </Grid>
                         <Button

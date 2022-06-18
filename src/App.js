@@ -77,12 +77,16 @@ function AppShell() {
               leaveTouchDelay={5000}
               title={
                 <React.Fragment>
-                  <Typography color="inherit"><strong>Help Page</strong></Typography>
-                  <b>{"To move around: "}</b>{"click on the canvas with hand tool and drag"}<br />
-                  <b>{"To zoom in and out: "}</b>{"Press control and scroll"}<br />
-                  <b>{"To scroll left and right: "}</b>{"Press shift and scroll"}<br />
-                  <b>{"To undo: "}</b>{"Press control and z"}<br />
-                  <b>{"To redo: "}</b>{"Press control and y or press control and shift and z"}<br /><br />
+                  <Typography color="inherit"><strong>How to:</strong></Typography>
+                  <b>{"Move around: "}</b>{"Drag on the canvas with hand tool and drag or use multitouch function in trackpad/touchscreen"}<br />
+                  <b>{"Zoom in and out: "}</b>{"Press control and scroll"}<br />
+                  <b>{"Scroll left and right: "}</b>{"Press shift and scroll"}<br />
+                  <b>{"Undo: "}</b>{"Press control+z or press undo button at the toolbar"}<br />
+                  <b>{"Redo: "}</b>{"Press control+y or control+shift+z or press redo button at the toolbar"}<br />
+                  <b>{"Change line color: "}</b>{"Use the color picker at the toolbar"}<br />
+                  <b>{"Change the line width: "}</b>{"Use the slider at the toolbar to choose the width"}<br />
+                  <b>{"Import: "}</b>{"Press the file attachment icon and choose file"}<br />
+                  <b>{"Export: "}</b>{"Press the export button and choose between image and pdf"}<br /><br />
                   <a href="https://github.com/parnikkapore/quiknotes-fe"><strong>Our Github repo</strong></a>
                 </React.Fragment>
               }
