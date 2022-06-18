@@ -1,4 +1,3 @@
-import { Image } from "react-konva";
 import React from "react";
 import * as pdfjs from "pdfjs-dist/webpack";
 import { nanoid as rid } from "nanoid";
@@ -12,13 +11,7 @@ const pdfPageTemplate = {
   width: 0,
   height: 0,
   image: {},
-  render() {
-    return this.image ? (
-      <Image key={this.id} x={this.xpos} y={this.ypos} image={this.image[1]} />
-    ) : (
-      <></>
-    );
-  },
+  source: { type: "pdf", pageNumber: 0 },
 };
 
 export const emptyPDF = {
@@ -83,6 +76,7 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
         width: pageInfo.width,
         height: pageInfo.height,
         image: { 1: pageInfo.image },
+        source: { type: "pdf", pageNumber: i },
       })
     );
 

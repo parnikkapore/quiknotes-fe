@@ -321,6 +321,71 @@ export default function Canvas(props) {
     _handleExportRasterPDF(e);
   }
 
+  function handleExportVectorPDF(e) {
+    async function _handleExportVectorPDF(e) {
+      // 0. Open the PDF, if needed
+      let stockPdf = null;
+      if (docInfo.type === "application/pdf") {
+        stockPdf = await PDFDocument.load(
+          await fetch(docInfo.url).then((res) => res.arrayBuffer())
+        );
+      }
+
+      // 1. Prepare the pages
+      let docPdf = await PDFDocument.create();
+      for (const page of doc.pages) {
+        if (page.source.type === "pdf") {
+          const copiedPages = await docPdf.copyPages(stockPdf, [
+            page.source.pageNumber,
+          ]);
+          docPdf.addPage(copiedPages[0]);
+        } else {
+          const pdfImg = await docPdf.embedPng(rasterizePage(page.pageNumber));
+          const pdfImgDims = pdfImg.scale(1 / RASTERIZER_DPR);
+          const newPage = docPdf.addPage([pdfImgDims.width, pdfImgDims.height]);
+          newPage.drawImage(pdfImg, {
+            width: pdfImgDims.width,
+            height: pdfImgDims.height,
+          });
+        }
+      }
+      // 2. Render the lines
+      const pages = docPdf.getPages();
+      for (const line of lines) {
+        const pageObj = doc.pagemap.get(line.page);
+        if (pageObj === undefined) {
+          console.error(
+            `Cannot find page ${line.page} in pagemap - skipping line ${line.id}!`
+          );
+          continue;
+        }
+        const pageId = pageObj.pageNumber;
+        if (pageId === undefined) {
+          console.error(
+            `Page ${line.page} has corrupt page number - skipping line ${line.id}!`
+          );
+          continue;
+        }
+
+        let linePairs = [];
+        for (let i = 0; i < line.points.length - 1; i += 2) {
+          linePairs.push(`${line.points[i]} ${line.points[i + 1]}`);
+        }
+        console.log(line, linePairs);
+        const svgPath = "M " + linePairs.join(" L ");
+        pages[pageId].drawSvgPath(svgPath, {
+          x: 0,
+          y: pages[pageId].getHeight(),
+        });
+      }
+
+      // 3. Redirect to finished document
+      downloadURI(await docPdf.saveAsBase64({ dataUri: true }), doc.name);
+    }
+
+    _handleExportVectorPDF(e);
+  }
+
   // === Canvas resize =====
 
   const stage_container = React.useRef(null);
@@ -484,6 +549,9 @@ export default function Canvas(props) {
         </Button>
         <Button onClick={handleExportRasterPDF} endIcon={<IosShareIcon />}>
           Export as bitmap PDF
+        </Button>
+        <Button onClick={handleExportVectorPDF} endIcon={<IosShareIcon />}>
+          Export as vector PDF
         </Button>
       </div>
       <div id="stage-container" ref={stage_container}>

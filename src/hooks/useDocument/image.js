@@ -1,4 +1,3 @@
-import { Image } from "react-konva";
 import { nanoid as rid } from "nanoid";
 
 // useDocument/image.js - Image import
@@ -9,13 +8,7 @@ const imagePageTemplate = {
   width: 0,
   height: 0,
   image: [null, null],
-  render() {
-    return this.image ? (
-      <Image key={this.id} x={this.xpos} y={this.ypos} image={this.image} />
-    ) : (
-      <></>
-    );
-  },
+  source: { type: "image", original: null },
 };
 
 export function addImageAsync(url, setDoc, name = "Image") {
@@ -27,6 +20,7 @@ export function addImageAsync(url, setDoc, name = "Image") {
       width: image.width,
       height: image.height,
       image: [null, image],
+      source: { type: "image", original: image },
     });
 
     setDoc({
