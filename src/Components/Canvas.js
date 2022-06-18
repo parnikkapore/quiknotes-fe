@@ -391,7 +391,7 @@ export default function Canvas(props) {
           x: 0,
           y: pages[pageId].getHeight(),
           borderWidth: line.strokeWidth,
-          opacity: line.opacity,
+          borderOpacity: line.opacity,
           borderColor: PDFrgb(cr / 255, cg / 255, cb / 255),
           borderLineCap: PDFcapStyle.Round,
         });
