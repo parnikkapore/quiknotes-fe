@@ -1,5 +1,4 @@
 import { nanoid as rid } from "nanoid";
-import { Image } from "react-konva";
 
 export default class Page {
   constructor(params = {}) {
