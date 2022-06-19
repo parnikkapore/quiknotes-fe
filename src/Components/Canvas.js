@@ -1,8 +1,13 @@
 import React, { useCallback, useEffect } from "react";
+import Konva from "konva";
 import { Layer, Line } from "react-konva";
 import ScrollableStage from "./ScrollableStage";
 import useDocument from "../hooks/useDocument";
-import { PDFDocument } from "pdf-lib";
+import {
+  PDFDocument,
+  rgb as PDFrgb,
+  LineCapStyle as PDFcapStyle,
+} from "pdf-lib";
 import { Button, IconButton, Input, Box, Slider } from "@mui/material";
 import UndoIcon from "@mui/icons-material/Undo";
 import RedoIcon from "@mui/icons-material/Redo";
@@ -14,11 +19,14 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { AiOutlineHighlight } from "react-icons/ai";
 import { BsPencil, BsEraser } from "react-icons/bs";
 import { IoHandRightOutline } from "react-icons/io5";
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
-import { styled } from '@mui/material/styles';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import { styled } from "@mui/material/styles";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import ClickAwayListener from "@mui/material/ClickAwayListener";
 import "./Canvas.css";
+import { nanoid as rid } from "nanoid";
+import CLine from "./Canvas/Line";
+import { colord } from "colord";
 
 // === For undo & redo =====
 
@@ -30,7 +38,7 @@ export default function Canvas(props) {
 
   const [tool, setTool] = React.useState("pen");
   const [lines, setLines] = React.useState([]);
-  const isDrawing = React.useRef(false);
+  const [currentLine, setCurrentLine] = React.useState(null);
   const [displayColorPicker, setDisplayColorPicker] = React.useState(false);
   const [color, setColor] = React.useState({
     r: "0",
@@ -56,7 +64,6 @@ export default function Canvas(props) {
   const handleChange = (color) => {
     setColor(color.rgb);
     setStrokeColor(color.hex);
-    console.log(strokeColor);
   };
 
   const styles = reactCSS({
@@ -90,65 +97,95 @@ export default function Canvas(props) {
   });
 
   const handleMouseDown = (e) => {
-    isDrawing.current = true;
     const pos = e.target.getStage().getRelativePointerPosition();
-    setLines([
-      ...lines,
-      {
-        tool,
-        points: [pos.x, pos.y],
-        color: strokeColor,
-        opacity: 1,
-        strokeWidth: strokeWidth,
-      },
-    ]);
+    setCurrentLine({
+      id: rid(),
+      tool,
+      points: [pos.x, pos.y],
+      color: strokeColor,
+      opacity: 1,
+      strokeWidth: strokeWidth,
+    });
   };
 
   const handleMouseMove = (e) => {
     // no drawing - skipping
-    if (!isDrawing.current) {
+    if (currentLine === null) {
       return;
     }
 
     const stage = e.target.getStage();
     const point = stage.getRelativePointerPosition();
-    let lastLine = lines[lines.length - 1];
-    // add point
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
-    // update color
-    lastLine.color = strokeColor;
-    if (tool === "highlighter") {
-      lastLine.opacity = 0.5;
-      lastLine.strokeWidth = highlighterStrokeWidth;
-    }
 
-    // replace last
-    setLines(lines.slice(0, -1).concat(lastLine));
+    setCurrentLine((_currentLine) => {
+      const currentLine = { ..._currentLine };
+
+      // add point
+      currentLine.points = _currentLine.points.concat([point.x, point.y]);
+
+      // update color
+      currentLine.color = strokeColor;
+      if (tool === "highlighter") {
+        currentLine.opacity = 0.5;
+        currentLine.strokeWidth = highlighterStrokeWidth;
+      }
+
+      return currentLine;
+    });
   };
 
   const handleMouseUp = () => {
-    if (isDrawing.current === false) {
+    if (currentLine === null) {
       return;
     }
 
-    isDrawing.current = false;
-    let newLines = lines;
-
     // if there's only one point, dupe it so it draws properly
-    const lastLine = lines[lines.length - 1];
-    if (lastLine.points.length === 2) {
-      newLines = lines.slice(0, -1);
-      newLines.push({
-        ...lastLine,
-        points: lastLine.points.concat(lastLine.points),
-      });
-      setLines(newLines);
+    let lastLine =
+      currentLine.points.length === 2
+        ? {
+            ...currentLine,
+            points: currentLine.points.concat(currentLine.points),
+          }
+        : { ...currentLine };
+
+    // Find the page that this line should belong to
+    {
+      let bestPage = "";
+      let bestHeight = -Infinity;
+      const lineBbox = new Konva.Line({
+        points: lastLine.points,
+        strokeWidth: lastLine.strokeWidth,
+      }).getClientRect();
+
+      for (const cPage of doc.pages) {
+        const cHeight =
+          Math.min(cPage.ypos + cPage.height, lineBbox.y + lineBbox.height) -
+          Math.max(cPage.ypos, lineBbox.y);
+        if (cHeight > bestHeight) {
+          bestHeight = cHeight;
+          bestPage = cPage.id;
+        }
+      }
+
+      // console.log(doc.pagemap.get(bestPage).pageNumber);
+      lastLine.page = bestPage;
     }
+
+    // Convert all coordinates to page-relative
+    lastLine.points = coordsToLocal(lastLine);
+
+    // Finally make a new set of lines with our new line
+    const newLines = lines.concat([lastLine]);
 
     // add to history
     history = history.slice(0, historyStep + 1);
     history = history.concat([newLines]);
     historyStep += 1;
+
+    // clear current line
+    setCurrentLine(null);
+
+    setLines(newLines);
   };
 
   // === Undo and Redo ====
@@ -209,7 +246,7 @@ export default function Canvas(props) {
     type: "application/pdf",
     url: "/test1.pdf",
   });
-  const doc = useDocument(docInfo);
+  const [doc, DocRenderer] = useDocument(docInfo);
 
   function handleFileOpen(e) {
     const file = e.target.files[0];
@@ -290,6 +327,83 @@ export default function Canvas(props) {
     _handleExportRasterPDF(e);
   }
 
+  function handleExportVectorPDF(e) {
+    async function _handleExportVectorPDF(e) {
+      // 0. Open the PDF, if needed
+      let stockPdf = null;
+      if (docInfo.type === "application/pdf") {
+        stockPdf = await PDFDocument.load(
+          await fetch(docInfo.url).then((res) => res.arrayBuffer())
+        );
+      }
+
+      // 1. Prepare the pages
+      let docPdf = await PDFDocument.create();
+      for (const page of doc.pages) {
+        if (page.source.type === "pdf") {
+          const copiedPages = await docPdf.copyPages(stockPdf, [
+            page.source.pageNumber,
+          ]);
+          docPdf.addPage(copiedPages[0]);
+        } else {
+          const pdfImg = await docPdf.embedPng(rasterizePage(page.pageNumber));
+          const pdfImgDims = pdfImg.scale(1 / RASTERIZER_DPR);
+          const newPage = docPdf.addPage([pdfImgDims.width, pdfImgDims.height]);
+          newPage.drawImage(pdfImg, {
+            width: pdfImgDims.width,
+            height: pdfImgDims.height,
+          });
+        }
+      }
+      // 2. Render the lines
+      const pages = docPdf.getPages();
+      for (const line of lines) {
+        const pageObj = doc.pagemap.get(line.page);
+        if (pageObj === undefined) {
+          console.error(
+            `Cannot find page ${line.page} in pagemap - skipping line ${line.id}!`
+          );
+          continue;
+        }
+        const pageId = pageObj.pageNumber;
+        if (pageId === undefined) {
+          console.error(
+            `Page ${line.page} has corrupt page number - skipping line ${line.id}!`
+          );
+          continue;
+        }
+
+        let linePairs = [];
+        for (let i = 0; i < line.points.length - 1; i += 2) {
+          linePairs.push(`${line.points[i]} ${line.points[i + 1]}`);
+        }
+        /* // point hack (SVG is differently insane about this)
+        if (linePairs.length === 2 && linePairs[0] === linePairs[1]) {
+          linePairs.pop();
+        }
+        //*/
+
+        // console.log(line.points, linePairs);
+
+        const svgPath = "M " + linePairs.join(" L ");
+        const { r: cr, g: cg, b: cb } = colord(line.color).toRgb();
+        pages[pageId].drawSvgPath(svgPath, {
+          x: 0,
+          y: pages[pageId].getHeight(),
+          borderWidth: line.strokeWidth,
+          borderOpacity: line.opacity,
+          borderColor: PDFrgb(cr / 255, cg / 255, cb / 255),
+          borderLineCap: PDFcapStyle.Round,
+        });
+      }
+
+      // 3. Redirect to finished document
+      downloadURI(await docPdf.saveAsBase64({ dataUri: true }), doc.name);
+    }
+
+    _handleExportVectorPDF(e);
+  }
+
   // === Canvas resize =====
 
   const stage_container = React.useRef(null);
@@ -302,38 +416,92 @@ export default function Canvas(props) {
     [the_stage, stage_container]
   );
 
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [handleResize]);
+
+  // === Tooltips =====
+
   const HtmlTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
   ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#f5f5f9',
-      color: 'rgba(0, 0, 0, 0.87)',
+      backgroundColor: "#f5f5f9",
+      color: "rgba(0, 0, 0, 0.87)",
       maxWidth: 240,
       fontSize: theme.typography.pxToRem(12),
       border: "1px solid #dadde9",
     },
   }));
 
+  // === Convert line points between global and page-relative coordinates =====
+
+  function coordsToLocal(line) {
+    const page = doc.pagemap.get(line.page);
+    const [pageX, pageY] = [page.xpos, page.ypos];
+    const newPoints = [];
+    for (let i = 0; i < line.points.length; i++) {
+      if (i % 2 === 0) {
+        // x
+        newPoints.push(line.points[i] - pageX);
+      } else {
+        // y
+        newPoints.push(line.points[i] - pageY);
+      }
+    }
+    return newPoints;
+  }
+
+  function coordsToGlobal(line) {
+    const page = doc.pagemap.get(line.page);
+    const [pageX, pageY] = [page?.xpos || 0, page?.ypos || 0];
+    const newPoints = [];
+    for (let i = 0; i < line.points.length; i++) {
+      if (i % 2 === 0) {
+        // x
+        newPoints.push(line.points[i] + pageX);
+      } else {
+        // y
+        newPoints.push(line.points[i] + pageY);
+      }
+    }
+    // console.log("!b", line.id, page?.ypos || "NilPos", newPoints);
+    return newPoints;
+  }
+
+  // === Debugging use only =====
+
+  window._ = window._ || {};
+  window._.shiftPage = () => {
+    doc.pages[1].xpos += 50;
+  };
+
+  // === Actual app contents =====
+
   const [importOpen, setImportOpen] = React.useState(false);
   const [exportOpen, setExportOpen] = React.useState(false);
 
   const handleImportClose = () => {
-    setImportOpen(false)
+    setImportOpen(false);
   };
 
   const handleImportOpen = () => {
-    setImportOpen(true)
-    setExportOpen(false)
+    setImportOpen(true);
+    setExportOpen(false);
   };
 
   const handleExportClose = () => {
-    setExportOpen(false)
-  }
+    setExportOpen(false);
+  };
 
   const handleExportOpen = () => {
-    setExportOpen(true)
-    setImportOpen(false)
-  }
+    setExportOpen(true);
+    setImportOpen(false);
+  };
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -446,11 +614,23 @@ export default function Canvas(props) {
               disableTouchListener
               title={
                 <React.Fragment>
-                  <Button onClick={handleExportImage} endIcon={<IosShareIcon />}>
+                  <Button
+                    onClick={handleExportImage}
+                    endIcon={<IosShareIcon />}
+                  >
                     Export as image
                   </Button>
-                  <Button onClick={handleExportRasterPDF} endIcon={<IosShareIcon />}>
+                  <Button
+                    onClick={handleExportRasterPDF}
+                    endIcon={<IosShareIcon />}
+                  >
                     Export as bitmap PDF
+                  </Button>
+                  <Button
+                    onClick={handleExportVectorPDF}
+                    endIcon={<IosShareIcon />}
+                  >
+                    Export as vector PDF
                   </Button>
                 </React.Fragment>
               }
@@ -476,26 +656,31 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
-            {doc.pages.map((page) => page.render())}
-            {lines.map((line, i) => (
+            <DocRenderer doc={doc} />
+            {lines.map((line) => (
+              <CLine key={line.id} line={line} doc={doc} />
+            ))}
+            {currentLine !== null && (
               <Line
-                key={i}
-                points={line.points}
-                stroke={line.color}
-                opacity={line.opacity}
-                strokeWidth={line.strokeWidth}
+                key={currentLine.id}
+                points={currentLine.points}
+                stroke={currentLine.color}
+                opacity={currentLine.opacity}
+                strokeWidth={currentLine.strokeWidth}
                 tension={0.5}
                 lineCap="round"
                 globalCompositeOperation={
-                  line.tool === "eraser" ? "destination-out" : "source-over"
+                  currentLine.tool === "eraser"
+                    ? "destination-out"
+                    : "source-over"
                 }
               />
-            ))}
+            )}
           </Layer>
         </ScrollableStage>
       </div>
