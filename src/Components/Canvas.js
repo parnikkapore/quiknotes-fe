@@ -482,8 +482,8 @@ export default function Canvas(props) {
 
     const factor = Math.min(screenWidth / pageWidth, screenHeight / pageHeight);
 
-    const leftOffset = (screenWidth / factor - pageWidth) / 2;
-    const upOffset = (screenHeight / factor - pageHeight) / 2;
+    const leftOffset = (screenWidth - pageWidth * factor) / 2;
+    const upOffset = (screenHeight - pageHeight * factor) / 2;
 
     console.log(factor, leftOffset, upOffset);
 
@@ -492,7 +492,10 @@ export default function Canvas(props) {
   }
 
   // Poor hack to reset view on new document
-  React.useEffect(() => resetView(), [doc.name]);
+
+  // The lack of updates here is intentional
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => resetView(), [doc.name]);
 
   // === Actual app contents =====
 
