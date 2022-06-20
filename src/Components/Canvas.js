@@ -27,6 +27,8 @@ import "./Canvas.css";
 import { nanoid as rid } from "nanoid";
 import CLine from "./Canvas/Line";
 import { colord } from "colord";
+import { setDoc, doc as firestoreDoc } from "firebase/firestore";
+import { useAuth, db } from "../hooks/useAuth";
 
 // === For undo & redo =====
 
@@ -50,6 +52,7 @@ export default function Canvas(props) {
   const [strokeWidth, setStrokeWidth] = React.useState(5);
   const [highlighterStrokeWidth, setHighlighterStrokeWidth] =
     React.useState(25);
+  const { user } = useAuth();
 
   // === Color picker functionality =====
 
@@ -143,9 +146,9 @@ export default function Canvas(props) {
     let lastLine =
       currentLine.points.length === 2
         ? {
-            ...currentLine,
-            points: currentLine.points.concat(currentLine.points),
-          }
+          ...currentLine,
+          points: currentLine.points.concat(currentLine.points),
+        }
         : { ...currentLine };
 
     // Find the page that this line should belong to
@@ -260,6 +263,17 @@ export default function Canvas(props) {
       type: file.type,
       url: URL.createObjectURL(file),
     });
+  }
+
+  const handleSave = () => {
+    const docData = {
+      name: user?.displayName,
+      uid: user?.uid,
+      pages: docInfo,
+      lines: lines
+    }
+    console.log(docData);
+    setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
   }
 
   const the_stage = React.useRef(null);
@@ -560,6 +574,7 @@ export default function Canvas(props) {
         <IconButton aria-label="Redo" onClick={handleRedo}>
           <RedoIcon />
         </IconButton>
+        <Button onClick={handleSave}>Save</Button>
         <span>
           <div style={styles.swatch} onClick={handleClick}>
             <div style={styles.color} />
@@ -678,9 +693,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
         >
           <Layer ref={the_layer}>
             <DocRenderer doc={doc} />
