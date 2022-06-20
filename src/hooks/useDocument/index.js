@@ -65,7 +65,15 @@ function DocumentAddButtons(rawDoc, setRawDoc, addButton) {
         onMouseDown={(e) => {
           e.cancelBubble = true;
         }}
+        onTouchStart={(e) => {
+          e.cancelBubble = true;
+        }}
         onClick={(e) => {
+          addPage([rawDoc, setRawDoc], page.pageNumber);
+          e.cancelBubble = true;
+        }}
+        onTouchEnd={(e) => {
+          // touchClick does not exist :(
           addPage([rawDoc, setRawDoc], page.pageNumber);
           e.cancelBubble = true;
         }}
