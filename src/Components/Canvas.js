@@ -473,6 +473,27 @@ export default function Canvas(props) {
     return newPoints;
   }
 
+  // === View reset =====
+
+  function resetView() {
+    const { width: screenWidth, height: screenHeight } =
+      the_stage.current.size();
+    const { width: pageWidth, height: pageHeight } = doc.pages[0];
+
+    const factor = Math.min(screenWidth / pageWidth, screenHeight / pageHeight);
+
+    const leftOffset = (screenWidth / factor - pageWidth) / 2;
+    const upOffset = (screenHeight / factor - pageHeight) / 2;
+
+    console.log(factor, leftOffset, upOffset);
+
+    the_stage.current.scale({ x: factor, y: factor });
+    the_stage.current.position({ x: leftOffset, y: upOffset });
+  }
+
+  // Poor hack to reset view on new document
+  React.useEffect(() => resetView(), [doc.name]);
+
   // === Actual app contents =====
 
   const [importOpen, setImportOpen] = React.useState(false);
@@ -563,6 +584,9 @@ export default function Canvas(props) {
             />
           </Box>
         </span>
+        <Button onClick={resetView} endIcon={<IosShareIcon />}>
+          Reset view
+        </Button>
         <ClickAwayListener onClickAway={handleImportClose}>
           <div>
             <span>
