@@ -246,7 +246,7 @@ export default function Canvas(props) {
     type: "application/pdf",
     url: "/test1.pdf",
   });
-  const [doc, DocRenderer] = useDocument(docInfo);
+  const [doc, DocRenderer, DocAddButtons] = useDocument(docInfo);
 
   function handleFileOpen(e) {
     const file = e.target.files[0];
@@ -681,6 +681,9 @@ export default function Canvas(props) {
                 }
               />
             )}
+          </Layer>
+          <Layer>
+            <DocAddButtons doc={doc} />
           </Layer>
         </ScrollableStage>
       </div>

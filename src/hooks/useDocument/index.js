@@ -19,37 +19,20 @@ function addPage([rawDoc, setRawDoc], pageNr) {
   setRawDoc({ ...rawDoc, pages: docPages });
 }
 
-function DocumentRenderer([rawDoc, setRawDoc], [pageBkg, addButton]) {
+function DocumentRenderer(pageBkg) {
   return (props) =>
     props.doc.pages.map((page) =>
       page.image ? (
-        <React.Fragment key={page.id}>
-          <Image
-            key={page.id}
-            x={page.xpos}
-            y={page.ypos}
-            width={page.width}
-            height={page.height}
-            image={page.image[1]}
-            fillPatternImage={pageBkg}
-            fillPatternRepeat="repeat"
-          />
-          <Image
-            x={page.xpos + page.width + 16}
-            y={page.ypos + page.height - 50}
-            width={50}
-            height={50}
-            image={addButton}
-            cornerRadius={10}
-            onMouseDown={(e) => {
-              e.cancelBubble = true;
-            }}
-            onClick={(e) => {
-              addPage([rawDoc, setRawDoc], page.pageNumber);
-              e.cancelBubble = true;
-            }}
-          />
-        </React.Fragment>
+        <Image
+          key={page.id}
+          x={page.xpos}
+          y={page.ypos}
+          width={page.width}
+          height={page.height}
+          image={page.image[1]}
+          fillPatternImage={pageBkg}
+          fillPatternRepeat="repeat"
+        />
       ) : (
         <>
           <Rect
@@ -63,6 +46,31 @@ function DocumentRenderer([rawDoc, setRawDoc], [pageBkg, addButton]) {
         </>
       )
     );
+}
+
+function DocumentAddButtons(rawDoc, setRawDoc, addButton) {
+  const RIGHT_MARGIN = 16;
+  const SIZE = 50;
+
+  return (props) =>
+    props.doc.pages.map((page) => (
+      <Image
+        key={page.id}
+        x={page.xpos + page.width + RIGHT_MARGIN}
+        y={page.ypos + page.height - SIZE}
+        width={SIZE}
+        height={SIZE}
+        image={addButton}
+        cornerRadius={10}
+        onMouseDown={(e) => {
+          e.cancelBubble = true;
+        }}
+        onClick={(e) => {
+          addPage([rawDoc, setRawDoc], page.pageNumber);
+          e.cancelBubble = true;
+        }}
+      />
+    ));
 }
 
 export default function useDocument(docInfo) {
@@ -94,10 +102,12 @@ export default function useDocument(docInfo) {
     setLaidDoc(layout(rawDoc));
   }, [rawDoc]);
 
-  const renderer = React.useMemo(
-    () => DocumentRenderer([rawDoc, setRawDoc], [pageBkg, addButton]),
-    [rawDoc, pageBkg, addButton]
+  const renderer = React.useMemo(() => DocumentRenderer(pageBkg), [pageBkg]);
+
+  const addButtons = React.useMemo(
+    () => DocumentAddButtons(rawDoc, setRawDoc, addButton),
+    [rawDoc, setRawDoc, addButton]
   );
 
-  return [laidDoc, renderer];
+  return [laidDoc, renderer, addButtons];
 }
