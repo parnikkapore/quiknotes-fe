@@ -4,6 +4,9 @@ import layout from "./layouter";
 import React from "react";
 import { Image, Rect } from "react-konva";
 import Page from "./page";
+import pageBkgImage from "./pageBkg.png";
+import addButtonImage from "./plusButton.svg";
+import useImage from "use-image";
 
 function addPage([rawDoc, setRawDoc], pageNr) {
   const docPages = rawDoc.pages.slice();
@@ -16,7 +19,7 @@ function addPage([rawDoc, setRawDoc], pageNr) {
   setRawDoc({ ...rawDoc, pages: docPages });
 }
 
-function DocumentRenderer([rawDoc, setRawDoc]) {
+function DocumentRenderer([rawDoc, setRawDoc], [pageBkg, addButton]) {
   return (props) =>
     props.doc.pages.map((page) =>
       page.image ? (
@@ -28,16 +31,15 @@ function DocumentRenderer([rawDoc, setRawDoc]) {
             width={page.width}
             height={page.height}
             image={page.image[1]}
-            fillLinearGradientStartPoint={{ x: -50, y: -50 }}
-            fillLinearGradientEndPoint={{ x: 50, y: 50 }}
-            fillLinearGradientColorStops={[0, "red", 1, "yellow"]}
+            fillPatternImage={pageBkg}
+            fillPatternRepeat="repeat"
           />
-          <Rect
+          <Image
             x={page.xpos + page.width + 16}
             y={page.ypos + page.height - 50}
             width={50}
             height={50}
-            fill="red"
+            image={addButton}
             cornerRadius={10}
             onMouseDown={(e) => {
               e.cancelBubble = true;
@@ -64,6 +66,9 @@ function DocumentRenderer([rawDoc, setRawDoc]) {
 }
 
 export default function useDocument(docInfo) {
+  const [pageBkg] = useImage(pageBkgImage);
+  const [addButton] = useImage(addButtonImage);
+
   const [rawDoc, setRawDoc] = React.useState(emptyPDF);
 
   React.useEffect(() => {
@@ -90,8 +95,8 @@ export default function useDocument(docInfo) {
   }, [rawDoc]);
 
   const renderer = React.useMemo(
-    () => DocumentRenderer([rawDoc, setRawDoc]),
-    [rawDoc]
+    () => DocumentRenderer([rawDoc, setRawDoc], [pageBkg, addButton]),
+    [rawDoc, pageBkg, addButton]
   );
 
   return [laidDoc, renderer];
