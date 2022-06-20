@@ -480,12 +480,14 @@ export default function Canvas(props) {
       the_stage.current.size();
     const { width: pageWidth, height: pageHeight } = doc.pages[0];
 
+    if (!pageWidth || !pageHeight) return;
+
     const factor = Math.min(screenWidth / pageWidth, screenHeight / pageHeight);
 
     const leftOffset = (screenWidth - pageWidth * factor) / 2;
     const upOffset = (screenHeight - pageHeight * factor) / 2;
 
-    console.log(factor, leftOffset, upOffset);
+    // console.log(screenWidth, pageWidth, factor, leftOffset, upOffset);
 
     the_stage.current.scale({ x: factor, y: factor });
     the_stage.current.position({ x: leftOffset, y: upOffset });
