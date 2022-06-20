@@ -27,7 +27,7 @@ import "./Canvas.css";
 import { nanoid as rid } from "nanoid";
 import CLine from "./Canvas/Line";
 import { colord } from "colord";
-import { setDoc, doc as firestoreDoc } from "firebase/firestore";
+import { setDoc, doc as firestoreDoc, onSnapshot } from "firebase/firestore";
 import { useAuth, db } from "../hooks/useAuth";
 
 // === For undo & redo =====
@@ -275,6 +275,17 @@ export default function Canvas(props) {
     console.log(docData);
     setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
   }
+  
+  // === Realtime updates ====
+  useEffect(() => {
+    handleSave();
+    const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
+      const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+      console.log(source, " data: ", doc.data());
+    });
+
+    return () => unsub();
+  });
 
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
