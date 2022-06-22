@@ -547,6 +547,10 @@ export default function Canvas(props) {
     setImportOpen(false);
   };
 
+  const handleClear = () => {
+    setLines([]);
+  }
+
   useEffect(() => {
     window.addEventListener("resize", handleResize);
     handleResize();
@@ -586,6 +590,7 @@ export default function Canvas(props) {
           <RedoIcon />
         </IconButton>
         <Button onClick={handleSave}>Save</Button>
+        <Button onClick={handleClear}>Clear</Button>
         <span>
           <div style={styles.swatch} onClick={handleClick}>
             <div style={styles.color} />
