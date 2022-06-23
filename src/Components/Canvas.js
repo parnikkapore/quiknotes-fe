@@ -146,9 +146,9 @@ export default function Canvas(props) {
     let lastLine =
       currentLine.points.length === 2
         ? {
-          ...currentLine,
-          points: currentLine.points.concat(currentLine.points),
-        }
+            ...currentLine,
+            points: currentLine.points.concat(currentLine.points),
+          }
         : { ...currentLine };
 
     // Find the page that this line should belong to
@@ -267,22 +267,25 @@ export default function Canvas(props) {
 
   const handleSave = () => {
     const docData = {
-      name: user?.displayName,
-      uid: user?.uid,
+      name: user?.displayName || "",
+      uid: user?.uid || -1,
       pages: docInfo,
-      lines: lines
-    }
+      lines: lines,
+    };
     console.log(docData);
     setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
-  }
-  
+  };
+
   // === Realtime updates ====
   useEffect(() => {
     handleSave();
-    const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
-      const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
-      console.log(source, " data: ", doc.data());
-    });
+    const unsub = onSnapshot(
+      firestoreDoc(db, "Test", user?.uid + docInfo.name),
+      (doc) => {
+        const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+        console.log(source, " data: ", doc.data());
+      }
+    );
 
     return () => unsub();
   });
@@ -349,7 +352,7 @@ export default function Canvas(props) {
       downloadURI(await pdf.saveAsBase64({ dataUri: true }), doc.name);
     }
 
-    _handleExportRasterPDF(e);
+    _handleExportRasterPDF(e).catch((e) => console.error(e));
   }
 
   function handleExportVectorPDF(e) {
@@ -426,7 +429,7 @@ export default function Canvas(props) {
       downloadURI(await docPdf.saveAsBase64({ dataUri: true }), doc.name);
     }
 
-    _handleExportVectorPDF(e);
+    _handleExportVectorPDF(e).catch((e) => console.error(e));
   }
 
   // === Canvas resize =====
@@ -503,7 +506,10 @@ export default function Canvas(props) {
   function resetView() {
     const { width: screenWidth, height: screenHeight } =
       the_stage.current.size();
-    const { width: pageWidth, height: pageHeight } = doc.pages[0];
+    const { width: pageWidth, height: pageHeight } = doc.pages[0] || {
+      width: 0,
+      height: 0,
+    };
 
     if (!pageWidth || !pageHeight) return;
 
@@ -549,7 +555,7 @@ export default function Canvas(props) {
 
   const handleClear = () => {
     setLines([]);
-  }
+  };
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -709,9 +715,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
             <DocRenderer doc={doc} />

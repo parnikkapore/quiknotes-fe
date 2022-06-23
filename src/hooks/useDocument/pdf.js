@@ -22,11 +22,16 @@ export const emptyPDF = {
 export async function addPDFAsync(url, setDoc, name = "Document") {
   const docP = pdfjs.getDocument(url).promise;
 
-  const pagesP = await docP.then((pdf) => {
-    console.log("PDF loaded");
+  const pagesP = await docP
+    .then((pdf) => {
+      console.log("PDF loaded");
 
-    return Array.from(Array(pdf.numPages), (_, i) => pdf.getPage(i + 1));
-  });
+      return Array.from(Array(pdf.numPages), (_, i) => pdf.getPage(i + 1));
+    })
+    .catch((e) => {
+      console.log(e);
+      return [];
+    });
 
   const parsedPagesP = pagesP.map((pageP) =>
     pageP.then(async (page) => {
@@ -94,7 +99,7 @@ export async function addPDFAsync(url, setDoc, name = "Document") {
 export function usePDFRenderer(pdfURL) {
   const [pdfDoc, setPDFDoc] = React.useState(emptyPDF);
   React.useEffect(() => {
-    addPDFAsync(pdfURL, setPDFDoc);
+    addPDFAsync(pdfURL, setPDFDoc).catch((e) => console.error(e));
   }, [pdfURL]);
   return pdfDoc;
 }
