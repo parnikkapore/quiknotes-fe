@@ -4,6 +4,9 @@ import layout from "./layouter";
 import React from "react";
 import { Image, Rect } from "react-konva";
 import Page from "./page";
+import pageBkgImage from "./pageBkg.png";
+import addButtonImage from "./plusButton.svg";
+import useImage from "use-image";
 
 function addPage([rawDoc, setRawDoc], pageNr) {
   const docPages = rawDoc.pages.slice();
@@ -16,38 +19,20 @@ function addPage([rawDoc, setRawDoc], pageNr) {
   setRawDoc({ ...rawDoc, pages: docPages });
 }
 
-function DocumentRenderer([rawDoc, setRawDoc]) {
+function DocumentRenderer(pageBkg) {
   return (props) =>
     props.doc.pages.map((page) =>
       page.image ? (
-        <React.Fragment key={page.id}>
-          <Image
-            key={page.id}
-            x={page.xpos}
-            y={page.ypos}
-            width={page.width}
-            height={page.height}
-            image={page.image[1]}
-            fillLinearGradientStartPoint={{ x: -50, y: -50 }}
-            fillLinearGradientEndPoint={{ x: 50, y: 50 }}
-            fillLinearGradientColorStops={[0, "red", 1, "yellow"]}
-          />
-          <Rect
-            x={page.xpos + page.width + 16}
-            y={page.ypos + page.height - 50}
-            width={50}
-            height={50}
-            fill="red"
-            cornerRadius={10}
-            onMouseDown={(e) => {
-              e.cancelBubble = true;
-            }}
-            onClick={(e) => {
-              addPage([rawDoc, setRawDoc], page.pageNumber);
-              e.cancelBubble = true;
-            }}
-          />
-        </React.Fragment>
+        <Image
+          key={page.id}
+          x={page.xpos}
+          y={page.ypos}
+          width={page.width}
+          height={page.height}
+          image={page.image[1]}
+          fillPatternImage={pageBkg}
+          fillPatternRepeat="repeat"
+        />
       ) : (
         <>
           <Rect
@@ -63,7 +48,43 @@ function DocumentRenderer([rawDoc, setRawDoc]) {
     );
 }
 
+function DocumentAddButtons(rawDoc, setRawDoc, addButton) {
+  const RIGHT_MARGIN = 16;
+  const SIZE = 50;
+
+  return (props) =>
+    props.doc.pages.map((page) => (
+      <Image
+        key={page.id}
+        x={page.xpos + page.width + RIGHT_MARGIN}
+        y={page.ypos + page.height - SIZE}
+        width={SIZE}
+        height={SIZE}
+        image={addButton}
+        cornerRadius={10}
+        onMouseDown={(e) => {
+          e.cancelBubble = true;
+        }}
+        onTouchStart={(e) => {
+          e.cancelBubble = true;
+        }}
+        onClick={(e) => {
+          addPage([rawDoc, setRawDoc], page.pageNumber);
+          e.cancelBubble = true;
+        }}
+        onTouchEnd={(e) => {
+          // touchClick does not exist :(
+          addPage([rawDoc, setRawDoc], page.pageNumber);
+          e.cancelBubble = true;
+        }}
+      />
+    ));
+}
+
 export default function useDocument(docInfo) {
+  const [pageBkg] = useImage(pageBkgImage);
+  const [addButton] = useImage(addButtonImage);
+
   const [rawDoc, setRawDoc] = React.useState(emptyPDF);
 
   React.useEffect(() => {
@@ -89,10 +110,12 @@ export default function useDocument(docInfo) {
     setLaidDoc(layout(rawDoc));
   }, [rawDoc]);
 
-  const renderer = React.useMemo(
-    () => DocumentRenderer([rawDoc, setRawDoc]),
-    [rawDoc]
+  const renderer = React.useMemo(() => DocumentRenderer(pageBkg), [pageBkg]);
+
+  const addButtons = React.useMemo(
+    () => DocumentAddButtons(rawDoc, setRawDoc, addButton),
+    [rawDoc, setRawDoc, addButton]
   );
 
-  return [laidDoc, renderer];
+  return [laidDoc, renderer, addButtons];
 }
