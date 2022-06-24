@@ -275,17 +275,28 @@ export default function Canvas(props) {
     console.log(docData);
     setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
   }
-  
-  // === Realtime updates ====
-  useEffect(() => {
-    handleSave();
-    const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
-      const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
-      console.log(source, " data: ", doc.data());
-    });
 
-    return () => unsub();
-  });
+  const handleRestore = () => {
+    const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
+      console.log("Current data: ", doc.data());
+      setLines(doc.data().lines);
+      setDocInfo(doc.data().pages);
+    });
+    return () => {
+      unsub();
+    }
+  }
+
+  // === Realtime updates ====
+  // useEffect(() => {
+  //   handleSave();
+  //   const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
+  //     const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+  //     console.log(source, " data: ", doc.data());
+  //   });
+
+  //   return () => unsub();
+  // });
 
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
@@ -481,22 +492,22 @@ export default function Canvas(props) {
     return newPoints;
   }
 
-  function coordsToGlobal(line) {
-    const page = doc.pagemap.get(line.page);
-    const [pageX, pageY] = [page?.xpos || 0, page?.ypos || 0];
-    const newPoints = [];
-    for (let i = 0; i < line.points.length; i++) {
-      if (i % 2 === 0) {
-        // x
-        newPoints.push(line.points[i] + pageX);
-      } else {
-        // y
-        newPoints.push(line.points[i] + pageY);
-      }
-    }
-    // console.log("!b", line.id, page?.ypos || "NilPos", newPoints);
-    return newPoints;
-  }
+  // function coordsToGlobal(line) {
+  //   const page = doc.pagemap.get(line.page);
+  //   const [pageX, pageY] = [page?.xpos || 0, page?.ypos || 0];
+  //   const newPoints = [];
+  //   for (let i = 0; i < line.points.length; i++) {
+  //     if (i % 2 === 0) {
+  //       // x
+  //       newPoints.push(line.points[i] + pageX);
+  //     } else {
+  //       // y
+  //       newPoints.push(line.points[i] + pageY);
+  //     }
+  //   }
+  //   // console.log("!b", line.id, page?.ypos || "NilPos", newPoints);
+  //   return newPoints;
+  // }
 
   // === View reset =====
 
@@ -590,6 +601,7 @@ export default function Canvas(props) {
           <RedoIcon />
         </IconButton>
         <Button onClick={handleSave}>Save</Button>
+        <Button onClick={handleRestore}>Restore</Button>
         <Button onClick={handleClear}>Clear</Button>
         <span>
           <div style={styles.swatch} onClick={handleClick}>
