@@ -27,6 +27,8 @@ import "./Canvas.css";
 import { nanoid as rid } from "nanoid";
 import CLine from "./Canvas/Line";
 import { colord } from "colord";
+import { setDoc, doc as firestoreDoc, onSnapshot } from "firebase/firestore";
+import { useAuth, db } from "../hooks/useAuth";
 
 // === For undo & redo =====
 
@@ -50,6 +52,7 @@ export default function Canvas(props) {
   const [strokeWidth, setStrokeWidth] = React.useState(5);
   const [highlighterStrokeWidth, setHighlighterStrokeWidth] =
     React.useState(25);
+  const { user } = useAuth();
 
   // === Color picker functionality =====
 
@@ -143,9 +146,9 @@ export default function Canvas(props) {
     let lastLine =
       currentLine.points.length === 2
         ? {
-            ...currentLine,
-            points: currentLine.points.concat(currentLine.points),
-          }
+          ...currentLine,
+          points: currentLine.points.concat(currentLine.points),
+        }
         : { ...currentLine };
 
     // Find the page that this line should belong to
@@ -261,6 +264,39 @@ export default function Canvas(props) {
       url: URL.createObjectURL(file),
     });
   }
+
+  const handleSave = () => {
+    const docData = {
+      name: user?.displayName,
+      uid: user?.uid,
+      pages: docInfo,
+      lines: lines
+    }
+    console.log(docData);
+    setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
+  }
+
+  const handleRestore = () => {
+    const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
+      console.log("Current data: ", doc.data());
+      setLines(doc.data().lines);
+      setDocInfo(doc.data().pages);
+    });
+    return () => {
+      unsub();
+    }
+  }
+
+  // === Realtime updates ====
+  // useEffect(() => {
+  //   handleSave();
+  //   const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
+  //     const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+  //     console.log(source, " data: ", doc.data());
+  //   });
+
+  //   return () => unsub();
+  // });
 
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
@@ -456,29 +492,48 @@ export default function Canvas(props) {
     return newPoints;
   }
 
-  function coordsToGlobal(line) {
-    const page = doc.pagemap.get(line.page);
-    const [pageX, pageY] = [page?.xpos || 0, page?.ypos || 0];
-    const newPoints = [];
-    for (let i = 0; i < line.points.length; i++) {
-      if (i % 2 === 0) {
-        // x
-        newPoints.push(line.points[i] + pageX);
-      } else {
-        // y
-        newPoints.push(line.points[i] + pageY);
-      }
-    }
-    // console.log("!b", line.id, page?.ypos || "NilPos", newPoints);
-    return newPoints;
+  // function coordsToGlobal(line) {
+  //   const page = doc.pagemap.get(line.page);
+  //   const [pageX, pageY] = [page?.xpos || 0, page?.ypos || 0];
+  //   const newPoints = [];
+  //   for (let i = 0; i < line.points.length; i++) {
+  //     if (i % 2 === 0) {
+  //       // x
+  //       newPoints.push(line.points[i] + pageX);
+  //     } else {
+  //       // y
+  //       newPoints.push(line.points[i] + pageY);
+  //     }
+  //   }
+  //   // console.log("!b", line.id, page?.ypos || "NilPos", newPoints);
+  //   return newPoints;
+  // }
+
+  // === View reset =====
+
+  function resetView() {
+    const { width: screenWidth, height: screenHeight } =
+      the_stage.current.size();
+    const { width: pageWidth, height: pageHeight } = doc.pages[0];
+
+    if (!pageWidth || !pageHeight) return;
+
+    const factor = Math.min(screenWidth / pageWidth, screenHeight / pageHeight);
+
+    const leftOffset = (screenWidth - pageWidth * factor) / 2;
+    const upOffset = (screenHeight - pageHeight * factor) / 2;
+
+    // console.log(screenWidth, pageWidth, factor, leftOffset, upOffset);
+
+    the_stage.current.scale({ x: factor, y: factor });
+    the_stage.current.position({ x: leftOffset, y: upOffset });
   }
 
-  // === Debugging use only =====
+  // Poor hack to reset view on new document
 
-  window._ = window._ || {};
-  window._.shiftPage = () => {
-    doc.pages[1].xpos += 50;
-  };
+  // The lack of updates here is intentional
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => resetView(), [doc.name]);
 
   // === Actual app contents =====
 
@@ -502,6 +557,10 @@ export default function Canvas(props) {
     setExportOpen(true);
     setImportOpen(false);
   };
+
+  const handleClear = () => {
+    setLines([]);
+  }
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -541,6 +600,9 @@ export default function Canvas(props) {
         <IconButton aria-label="Redo" onClick={handleRedo}>
           <RedoIcon />
         </IconButton>
+        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={handleRestore}>Restore</Button>
+        <Button onClick={handleClear}>Clear</Button>
         <span>
           <div style={styles.swatch} onClick={handleClick}>
             <div style={styles.color} />
@@ -570,6 +632,9 @@ export default function Canvas(props) {
             />
           </Box>
         </span>
+        <Button onClick={resetView} endIcon={<IosShareIcon />}>
+          Reset view
+        </Button>
         <ClickAwayListener onClickAway={handleImportClose}>
           <div>
             <span>
@@ -656,9 +721,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
         >
           <Layer ref={the_layer}>
             <DocRenderer doc={doc} />
