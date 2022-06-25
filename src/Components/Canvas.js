@@ -146,9 +146,9 @@ export default function Canvas(props) {
     let lastLine =
       currentLine.points.length === 2
         ? {
-          ...currentLine,
-          points: currentLine.points.concat(currentLine.points),
-        }
+            ...currentLine,
+            points: currentLine.points.concat(currentLine.points),
+          }
         : { ...currentLine };
 
     // Find the page that this line should belong to
@@ -269,23 +269,27 @@ export default function Canvas(props) {
     const docData = {
       name: user?.displayName,
       uid: user?.uid,
-      pages: docInfo,
-      lines: lines
-    }
+      docinfo: docInfo,
+      lines: lines,
+      pageIds: doc.pages.map((page) => page.id),
+    };
     console.log(docData);
     setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
-  }
+  };
 
   const handleRestore = () => {
-    const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
-      console.log("Current data: ", doc.data());
-      setLines(doc.data().lines);
-      setDocInfo(doc.data().pages);
-    });
+    const unsub = onSnapshot(
+      firestoreDoc(db, "Test", user?.uid + docInfo.name),
+      (doc) => {
+        console.log("Current data: ", doc.data());
+        setLines(doc.data().lines);
+        setDocInfo({ ...doc.data().docinfo, pageIds: doc.data().pageIds });
+      }
+    );
     return () => {
       unsub();
-    }
-  }
+    };
+  };
 
   // === Realtime updates ====
   // useEffect(() => {
@@ -560,7 +564,7 @@ export default function Canvas(props) {
 
   const handleClear = () => {
     setLines([]);
-  }
+  };
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -721,9 +725,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
             <DocRenderer doc={doc} />

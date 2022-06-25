@@ -153,7 +153,7 @@ function _ScrollableStage(props, ref) {
       height={10}
       draggable={props.enabled ? "draggable" : false}
       onWheel={handleStageWheel}
-      onTouchStart={props.enabled ? () => { } : props.onTouchStart}
+      onTouchStart={props.enabled ? () => {} : props.onTouchStart}
       onTouchMove={props.enabled ? handleStagePinchMove : props.onTouchMove}
       onTouchEnd={props.enabled ? handleStagePinchEnd : props.onTouchEnd}
       onMouseDown={props.onMouseDown}
