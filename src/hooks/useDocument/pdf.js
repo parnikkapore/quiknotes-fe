@@ -23,7 +23,7 @@ export async function addPDFAsync(docInfo, setDoc) {
   const url = docInfo.url;
   const name = docInfo.name !== undefined ? docInfo.name : "Document";
   const existingPageIds = docInfo.pageIds;
-  
+
   const docP = pdfjs.getDocument(url).promise;
 
   const pagesP = await docP.then((pdf) => {
@@ -75,7 +75,7 @@ export async function addPDFAsync(docInfo, setDoc) {
 
     const pages = renderedPages.map((pageInfo, i) =>
       Object.assign(Object.create(pdfPageTemplate), {
-        id: (existingPageIds && existingPageIds[i]) ? existingPageIds[i] : rid(),
+        id: existingPageIds && existingPageIds[i] ? existingPageIds[i] : rid(),
         pageNumber: i,
         width: pageInfo.width,
         height: pageInfo.height,

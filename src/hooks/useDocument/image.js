@@ -15,12 +15,12 @@ export function addImageAsync(docInfo, setDoc) {
   const url = docInfo.url;
   const name = docInfo.name !== undefined ? docInfo.name : "Document";
   const existingPageIds = docInfo.pageIds;
-  
+
   const image = new window.Image();
   image.src = url;
   image.onload = function (e) {
     const page = Object.assign(Object.create(imagePageTemplate), {
-      id: (existingPageIds && existingPageIds[0]) ? existingPageIds[0] : rid(),
+      id: existingPageIds && existingPageIds[0] ? existingPageIds[0] : rid(),
       width: image.width,
       height: image.height,
       image: [null, image],
