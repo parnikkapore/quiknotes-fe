@@ -11,12 +11,16 @@ const imagePageTemplate = {
   source: { type: "image", original: null },
 };
 
-export function addImageAsync(url, setDoc, name = "Image") {
+export function addImageAsync(docInfo, setDoc) {
+  const url = docInfo.url;
+  const name = docInfo.name !== undefined ? docInfo.name : "Document";
+  const existingPageIds = docInfo.pageIds;
+  
   const image = new window.Image();
   image.src = url;
   image.onload = function (e) {
     const page = Object.assign(Object.create(imagePageTemplate), {
-      id: rid(),
+      id: (existingPageIds && existingPageIds[0]) ? existingPageIds[0] : rid(),
       width: image.width,
       height: image.height,
       image: [null, image],

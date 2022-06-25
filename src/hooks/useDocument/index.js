@@ -93,10 +93,10 @@ export default function useDocument(docInfo) {
         console.log("File type is empty?? - trying to open as PDF");
       // falls through
       case /application\/pdf/.test(docInfo.type):
-        addPDFAsync(docInfo.url, setRawDoc, docInfo.name);
+        addPDFAsync(docInfo, setRawDoc);
         break;
       case /image\/.*/.test(docInfo.type):
-        addImageAsync(docInfo.url, setRawDoc, docInfo.name);
+        addImageAsync(docInfo, setRawDoc);
         break;
       default:
         console.log(`Unknown file type ${docInfo.type} opened!`);

@@ -269,8 +269,9 @@ export default function Canvas(props) {
     const docData = {
       name: user?.displayName,
       uid: user?.uid,
-      pages: docInfo,
-      lines: lines
+      docinfo: docInfo,
+      lines: lines,
+      pageIds: doc.pages.map((page) => page.id)
     }
     console.log(docData);
     setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
@@ -280,7 +281,7 @@ export default function Canvas(props) {
     const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
       console.log("Current data: ", doc.data());
       setLines(doc.data().lines);
-      setDocInfo(doc.data().pages);
+      setDocInfo({...doc.data().docinfo, pageIds: doc.data().pageIds});
     });
     return () => {
       unsub();
