@@ -101,7 +101,7 @@ export default function PageForgotPassword() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="/Login" variant="body2">
+                <Link href="/" variant="body2">
                   Sign in
                 </Link>
               </Grid>
