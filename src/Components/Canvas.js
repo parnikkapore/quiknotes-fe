@@ -309,7 +309,8 @@ export default function Canvas(props) {
 
   function rasterizePage(pageNumber) {
     const stage = the_stage.current;
-    const { x: minX, width } = the_layer.current.getClientRect({
+    const layer = the_layer.current;
+    const { x: minX, width } = layer.getClientRect({
       skipTransform: true,
     });
 
@@ -319,7 +320,7 @@ export default function Canvas(props) {
       stage.position({ x: 0, y: 0 });
       stage.scale({ x: 1, y: 1 });
 
-      dataURL = stage.toDataURL({
+      dataURL = layer.toDataURL({
         pixelRatio: RASTERIZER_DPR,
         x: minX,
         y: doc.pages[pageNumber].ypos,
