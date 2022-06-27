@@ -1,5 +1,13 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signInAnonymously } from "firebase/auth";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signInAnonymously,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import React, { useState, useEffect, useContext, createContext } from "react";
 import { config as firebaseConfig } from "../config/firebaseConfig.js";
@@ -37,39 +45,66 @@ export const useAuth = () => {
 // Provider hook that creates auth object and handles state
 function useProvideAuth() {
   const [user, setUser] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Wrap any Firebase methods we want to use making sure ...
   // ... to save the user to state.
-  const signin = (email, password) => {
-    return signInWithEmailAndPassword(firebaseAuth, email, password)
-      .then((response) => {
-        setUser(response.user);
-        return response.user;
-      });
+  const signin = async (email, password) => {
+    try {
+      const response = await signInWithEmailAndPassword(
+        firebaseAuth,
+        email,
+        password
+      );
+      setUser(response.user);
+      return response.user;
+    } catch (error) {
+      setErrorMessage(error.message);
+      return error.message;
+    }
   };
 
-  const signup = (email, password) => {
-    return createUserWithEmailAndPassword(firebaseAuth, email, password)
-      .then((response) => {
-        setUser(response.user);
-        return response.user;
-      });
+  const signup = async (email, password) => {
+    try {
+      const response = await createUserWithEmailAndPassword(
+        firebaseAuth,
+        email,
+        password
+      );
+      setUser(response.user);
+      return response.user;
+    } catch (error) {
+      setErrorMessage(error.message);
+      return error.message;
+    }
   };
 
-  const signout = () => {
-    return firebaseAuth.signOut().then(() => {
-      setUser(false);
-    });
+  const signout = async () => {
+    await firebaseAuth.signOut();
+    setUser(false);
   };
 
-  const SendPasswordResetEmail = (email) => {
-    return sendPasswordResetEmail(firebaseAuth, email)
+  const SendPasswordResetEmail = async (email) => {
+    try {
+      await sendPasswordResetEmail(firebaseAuth, email);
+      setErrorMessage("Password reset email sent");
+    } catch (error) {
+      setErrorMessage(error.message);
+      return error.message;
+    }
   };
 
   const confirmPasswordReset = (code, password) => {
-    return firebaseAuth.confirmPasswordReset(code, password).then(() => {
-      return true;
-    });
+    return firebaseAuth
+      .confirmPasswordReset(code, password)
+      .then(() => {
+        return true;
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+        return error.message;
+        // ...
+      });
   };
 
   const signInWithGoogle = () => {
@@ -77,8 +112,8 @@ function useProvideAuth() {
   };
 
   const signInAnonymous = () => {
-    return signInAnonymously(firebaseAuth)
-  }
+    return signInAnonymously(firebaseAuth);
+  };
 
   // Subscribe to user on mount
   // Because this sets state in the callback it will cause any ...
@@ -107,5 +142,6 @@ function useProvideAuth() {
     confirmPasswordReset,
     signInWithGoogle,
     signInAnonymous,
+    errorMessage,
   };
 }
