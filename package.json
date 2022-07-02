@@ -36,6 +36,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "lint": "eslint --fix . && prettier -w --list-different .",
     "cyp": "cypress open"
   },
   "eslintConfig": {
@@ -68,6 +69,8 @@
   },
   "devDependencies": {
     "cypress": "^10.3.0",
+    "cypress-plugin-snapshots": "^1.4.4",
+    "eslint-plugin-cypress": "^2.12.1",
     "prettier": "2.6.2"
   }
 }
