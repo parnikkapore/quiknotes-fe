@@ -50,7 +50,7 @@ describe("Drawing canvas", () => {
   it("at least works as intended", () => {
     cy.log("Opens a PDF");
     cy.fixture("test_media/pdf.pdf", { encoding: null }).as("testpdf");
-    cy.get("svg[data-testid='AttachFileIcon']").click();
+    cy.get('[aria-label="Import"]').click();
     cy.get("input[type='file']").selectFile("@testpdf");
     cy.get("body").click("top"); // Dismiss file picker
     cy.get("@konva").wait(100).toMatchImageSnapshot();
@@ -80,10 +80,10 @@ describe("Drawing canvas", () => {
     cy.log(
       "can have its line color and size adjusted, preserving old line colors and sizes"
     );
-    cy.get("#toolbar > :nth-child(7)").click(); // color picker
-    cy.get(":nth-child(2) > span > div").click(); // orange color
+    cy.get('[aria-label="Stroke color"]').click(); // color picker
+    cy.get("[title='#F5A623']").click(); // orange color
     cy.get("body").click("top"); // dismiss color picker
-    cy.get(".MuiSlider-colorPrimary").click("right", { force: true });
+    cy.get(".MuiSlider-colorPrimary").click("right");
     cy.get("@konva")
       .trigger("mousedown", 100, 250)
       .trigger("mousemove", "bottom")
