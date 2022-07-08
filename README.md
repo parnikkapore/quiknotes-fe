@@ -21,15 +21,15 @@ We plan to build an open-source, desktop and mobile quick note-taking and annota
 ## Technologies
 
 ### Frontend
-- [ReactJS]
-- [KonvaJS] (free drawing)
-- [pdf.js] (renders PDFs)
-- [pdf-lib] (edits PDFs) 
-- [MUI]
+- [ReactJS](https://reactjs.org)
+- [Konva](https://konvajs.org) (free drawing)
+- [pdf.js](https://mozilla.github.io/pdf.js/) (renders PDFs)
+- [pdf-lib](https://pdf-lib.js.org) (edits PDFs) 
+- [MUI](https://mui.com)
 
 ### Backend
-- [Firebase Firestore]
-- Stretch goal: [Firebase Realtime]
+- [Firebase Firestore](https://firebase.google.com/products/firestore)
+- Stretch goal: [Firebase Realtime](https://firebase.google.com/products/realtime-database)
 
 ---
 
