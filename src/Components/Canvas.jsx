@@ -668,7 +668,7 @@ export default function Canvas(props) {
               >
                 <IconButton
                   size="medium"
-                  aria-label="Help"
+                  aria-label="Import"
                   color="inherit"
                   onClick={importOpen ? handleImportClose : handleImportOpen}
                 >
