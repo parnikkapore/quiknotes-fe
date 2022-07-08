@@ -106,6 +106,10 @@ export default function AppShell() {
                   {"Press the export button and choose between image and pdf"}
                   <br />
                   <br />
+                  <a href="https://github.com/parnikkapore/quiknotes-fe/issues">
+                    <strong>Report bug</strong>
+                  </a>
+                  <br />
                   <a href="https://github.com/parnikkapore/quiknotes-fe">
                     <strong>Our Github repo</strong>
                   </a>

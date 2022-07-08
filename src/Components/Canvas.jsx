@@ -80,10 +80,9 @@ export default function Canvas(props) {
       swatch: {
         padding: "5px",
         background: "#fff",
-        borderRadius: "1px",
+        border: "none",
         boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
         display: "inline-block",
-        cursor: "pointer",
       },
       popover: {
         position: "absolute",
@@ -609,9 +608,15 @@ export default function Canvas(props) {
         <Button onClick={handleRestore}>Restore</Button>
         <Button onClick={handleClear}>Clear</Button>
         <span>
-          <div style={styles.swatch} onClick={handleClick}>
+          <button
+            style={styles.swatch}
+            aria-label="Stroke color"
+            aria-pressed={displayColorPicker}
+            aria-expanded={displayColorPicker}
+            onClick={handleClick}
+          >
             <div style={styles.color} />
-          </div>
+          </button>
           {displayColorPicker ? (
             <div style={styles.popover}>
               <div style={styles.cover} onClick={handleClose} />
