@@ -104,6 +104,22 @@ function drawSampleLines() {
   strokeLine2();
 }
 
+// A test document that uses all of the available facilities
+function drawQuickBrownFox() {
+  // cy.get('[aria-label="Pen"]').click(); // Make sure pen tool is activated
+  cy.get(".MuiSlider-colorPrimary").click("center"); // Enlarge the pen to make tests easier
+  pickColor("#F5A623");
+  strokeLine1();
+  cy.get('[aria-label="Highlighter"]').click();
+  cy.get(".MuiSlider-colorPrimary").click(30, 15);
+  pickColor("#50E3C2");
+  strokeLine2();
+  cy.get('[aria-label="Eraser"]').click();
+  cy.get(".MuiSlider-colorPrimary").click(20, 15);
+  pickColor("#9013FE");
+  strokeLine5();
+}
+
 // A zoomed-in view that makes it way easier to visual diff
 function initDrawingTestView() {
   cy.contains("Reset view").click();
@@ -115,7 +131,11 @@ function initDrawingTestView() {
 }
 
 function initDrawingTestState(doDrawSampleLines = false) {
-  openFile("@testpdf");
+  openFile({
+    contents: "@testpdf",
+    fileName: "TestPDF.pdf",
+    mimeType: "application/pdf",
+  });
   // cy.get('[aria-label="Pen"]').click(); // Make sure pen tool is activated
   cy.get(".MuiSlider-colorPrimary").click("center"); // Enlarge the pen to make tests easier
   initDrawingTestView(); // And make it even easier by zooming in
@@ -130,7 +150,7 @@ function snap() {
 
 describe("Opens files", () => {
   it("PDF", () => {
-    openFile("@testpdf");
+    openFile({ contents: "@testpdf", mimeType: "application/pdf" });
     cy.document().toMatchImageSnapshot();
   });
 
@@ -508,8 +528,148 @@ describe("Add new page", () => {
   });
 });
 
-describe("Export", () => {
+// TODO: These tests are flaky as the snapshots depend on the phase of the rasterization
+// upon saving the PDF, which is different between browsers. (Really!)
+describe("Export [Flaky]", () => {
   beforeEach(() => {
-    initDrawingTestState(true);
+    initDrawingTestState(false);
+    cy.task("deleteDownloads");
   });
+
+  function fullPath(filePath) {
+    const path = require("path");
+    return path.join(Cypress.config("downloadsFolder"), filePath);
+  }
+
+  function waitFile(filePath) {
+    return cy
+      .readFile(fullPath(filePath), "binary", { timeout: 15000 })
+      .should((buffer) => {
+        expect(buffer.length).to.be.gt(100);
+      });
+  }
+
+  const pdflib = require("pdf-lib");
+
+  it("Raster: works", () => {
+    drawQuickBrownFox();
+    cy.get('[aria-label="Export"]').click();
+    cy.contains("Export as bitmap PDF").click();
+    waitFile("TestPDF.pdf");
+    cy.readFile(fullPath("TestPDF.pdf"), "base64").then(async (file) => {
+      const pdf = await pdflib.PDFDocument.load(file);
+      expect(pdf.getPageCount()).to.equal(2);
+      const ppage = pdf.getPage(1);
+      const { width, height } = ppage.getSize();
+      expect(width).to.be.closeTo(595, 1);
+      expect(height).to.be.closeTo(841.66, 1);
+      return file;
+    });
+
+    // Since we have a PDF reader on our hands, why not use it to inspect our exported PDF?
+
+    cy.readFile(fullPath("TestPDF.pdf"), null).as("export");
+    openFile("@export");
+    initDrawingTestView();
+    snap();
+  });
+
+  it("Raster: crops to line bounds if something extends beyond [X only for now]", () => {
+    // We have a unique viewport setting
+    cy.contains("Reset view").click();
+
+    // and some unique lines since our requirements are special™
+    cy.get("@konva")
+      .trigger("mousedown", 500, 50)
+      .trigger("mousemove", 500, 450)
+      .trigger("mouseup", 500, 450)
+      .trigger("mousedown", 200, 200)
+      .trigger("mousemove", 800, 200)
+      .trigger("mouseup", 700, 200);
+
+    cy.get('[aria-label="Export"]').click();
+    cy.contains("Export as bitmap PDF").click();
+    waitFile("TestPDF.pdf");
+
+    cy.readFile(fullPath("TestPDF.pdf"), "base64").then(async (file) => {
+      const pdf = await pdflib.PDFDocument.load(file);
+      const ppage = pdf.getPage(1);
+      const { width, height } = ppage.getSize();
+      expect(width).to.be.closeTo(943.66, 1);
+      expect(height).to.be.closeTo(841.66, 1);
+    });
+
+    // Since we have a PDF reader on our hands, why not use it to inspect our exported PDF?
+
+    cy.readFile(fullPath("TestPDF.pdf"), null).as("export");
+    openFile("@export");
+    cy.contains("Reset view").click();
+    cy.get("@konva").trigger("wheel", "top", {
+      deltaX: 0,
+      deltaY: 300,
+      ctrlKey: true,
+    });
+    snap();
+  });
+
+  it("Raster: Don't include the plus button", () => {
+    // We have a unique viewport setting
+    cy.contains("Reset view").click();
+
+    // and some unique lines since our requirements are special™
+    cy.get("@konva")
+      .trigger("mousedown", 600, 520)
+      .trigger("mousemove", 800, 520)
+      .trigger("mouseup", 800, 520);
+
+    cy.get('[aria-label="Export"]').click();
+    cy.contains("Export as bitmap PDF").click();
+    waitFile("TestPDF.pdf");
+
+    // Since we have a PDF reader on our hands, why not use it to inspect our exported PDF?
+
+    cy.readFile(fullPath("TestPDF.pdf"), null).as("export");
+    openFile("@export");
+    cy.contains("Reset view").click();
+    cy.get("@konva")
+      .trigger("wheel", "bottom", {
+        deltaX: 0,
+        deltaY: -500,
+        ctrlKey: true,
+      })
+      .trigger("wheel", "center", {
+        deltaX: 500,
+        deltaY: 100,
+      });
+    snap();
+  });
+
+  it("Vector: works", () => {
+    drawQuickBrownFox();
+    cy.get('[aria-label="Export"]').click();
+    cy.contains("Export as vector PDF").click();
+    waitFile("TestPDF.pdf");
+    cy.readFile(fullPath("TestPDF.pdf"), "base64").then(async (file) => {
+      const pdf = await pdflib.PDFDocument.load(file);
+      expect(pdf.getPageCount()).to.equal(2);
+      const ppage = pdf.getPage(1);
+      const { width, height } = ppage.getSize();
+      expect(width).to.be.closeTo(595.3, 1);
+      expect(height).to.be.closeTo(841.89, 1);
+      return file;
+    });
+
+    // Since we have a PDF reader on our hands, why not use it to inspect our exported PDF?
+
+    cy.readFile(fullPath("TestPDF.pdf"), null).as("export");
+    openFile("@export");
+    initDrawingTestView();
+    snap();
+  });
+
+  // TODO: The following tests are currently expected NOT to work.
+
+  // "Vector: crops to line bounds if something extends beyond"
+
+  // "Vector: Don't include the plus button"
 });
