@@ -99,6 +99,8 @@ export default function Canvas(props) {
   });
 
   const handleMouseDown = (e) => {
+    if (e.evt.button !== 0) return;
+    
     const pos = e.target.getStage().getRelativePointerPosition();
     setCurrentLine({
       id: rid(),
@@ -112,9 +114,7 @@ export default function Canvas(props) {
 
   const handleMouseMove = (e) => {
     // no drawing - skipping
-    if (currentLine === null) {
-      return;
-    }
+    if (currentLine === null) return;
 
     const stage = e.target.getStage();
     const point = stage.getRelativePointerPosition();
@@ -136,10 +136,9 @@ export default function Canvas(props) {
     });
   };
 
-  const handleMouseUp = () => {
-    if (currentLine === null) {
-      return;
-    }
+  const handleMouseUp = (e) => {
+    if (e.evt.button !== 0) return;
+    if (currentLine === null) return;
 
     // if there's only one point, dupe it so it draws properly
     let lastLine =
