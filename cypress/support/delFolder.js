@@ -11,10 +11,10 @@ function _deleteFolder(folderName, optional = true) {
       folderName,
       { maxRetries: 10, recursive: true, force: optional },
       (err) => {
-          if (err) {
-            console.error(err);
-            return reject(err);
-          }
+        if (err) {
+          console.error(err);
+          return reject(err);
+        }
         resolve(null);
       }
     );
