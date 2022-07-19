@@ -227,6 +227,15 @@ describe("Viewport manipulation", () => {
     cy.contains("Reset view").click();
     snap();
   });
+
+  it("can pan using hand tool", () => {
+    cy.get('[aria-label="Hand"]').click();
+    cy.get("@konva")
+      .trigger("mousedown", 400, 250)
+      .trigger("mousemove", 300, 200)
+      .trigger("mouseup", 300, 200);
+    snap();
+  });
 });
 
 describe("Drawing state tracking", () => {
