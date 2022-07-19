@@ -75,7 +75,7 @@ function useProvideAuth() {
       return response.user;
     } catch (error) {
       setErrorMessage(error.message);
-      return error.message;
+      throw error;
     }
   };
 
