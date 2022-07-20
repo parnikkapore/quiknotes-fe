@@ -100,7 +100,7 @@ export default function Canvas(props) {
 
   const handleMouseDown = (e) => {
     if (e.evt.button !== 0) return;
-    
+
     const pos = e.target.getStage().getRelativePointerPosition();
     setCurrentLine({
       id: rid(),
@@ -144,9 +144,9 @@ export default function Canvas(props) {
     let lastLine =
       currentLine.points.length === 2
         ? {
-          ...currentLine,
-          points: currentLine.points.concat(currentLine.points),
-        }
+            ...currentLine,
+            points: currentLine.points.concat(currentLine.points),
+          }
         : { ...currentLine };
 
     // Find the page that this line should belong to
@@ -289,16 +289,33 @@ export default function Canvas(props) {
     };
   };
 
-  // === Realtime updates ====
-  // useEffect(() => {
-  //   handleSave();
-  //   const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
-  //     const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
-  //     console.log(source, " data: ", doc.data());
-  //   });
+  const handleRefresh = () => {
+    const unsub = onSnapshot(
+      firestoreDoc(db, "Test", user?.uid + docInfo.name),
+      (doc) => {
+        console.log("Current data: ", doc.data());
+        setLines(doc.data().lines);
+        // if there is lines in the doc, set the doc info to the latest
+        if(lines.length > doc.data().lines.length){
+          handleSave();
+        }
+        setDocInfo({ ...doc.data().docinfo, pageIds: doc.data().pageIds });
+      }
+    );
+    return () => {
+      unsub();
+    };
+  };
 
-  //   return () => unsub();
-  // });
+  // === Realtime updates ====
+  useEffect(() => {
+    const timer = setInterval(() => {
+      handleRefresh();
+    }, 1500);
+    return () => {
+      clearInterval(timer);
+    };
+  });
 
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
@@ -641,9 +658,7 @@ export default function Canvas(props) {
             />
           </Box>
         </span>
-        <Button onClick={resetView}>
-          Reset view
-        </Button>
+        <Button onClick={resetView}>Reset view</Button>
         <ClickAwayListener onClickAway={handleImportClose}>
           <div>
             <span>
@@ -730,9 +745,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
             <DocRenderer doc={doc} />
