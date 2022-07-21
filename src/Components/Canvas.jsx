@@ -27,7 +27,11 @@ import "./Canvas.css";
 import { nanoid as rid } from "nanoid";
 import CLine from "./Canvas/Line";
 import { colord } from "colord";
-import { setDoc, doc as firestoreDoc, onSnapshot } from "firebase/firestore";
+import {
+  setDoc,
+  doc as firestoreDoc,
+  getDoc as firestoreGet,
+} from "firebase/firestore";
 import { useAuth, db } from "../hooks/useAuth";
 
 // === For undo & redo =====
@@ -100,7 +104,7 @@ export default function Canvas(props) {
 
   const handleMouseDown = (e) => {
     if (![undefined, 0].includes(e.evt.button)) return;
-    
+
     const pos = e.target.getStage().getRelativePointerPosition();
     setCurrentLine({
       id: rid(),
@@ -271,22 +275,21 @@ export default function Canvas(props) {
       lines: lines,
       pageIds: doc.pages.map((page) => page.id),
     };
-    console.log(docData);
+    console.log("Saved data: ", docData);
     setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
   };
 
   const handleRestore = () => {
-    const unsub = onSnapshot(
-      firestoreDoc(db, "Test", user?.uid + docInfo.name),
+    firestoreGet(firestoreDoc(db, "Test", user?.uid + docInfo.name)).then(
       (doc) => {
         console.log("Current data: ", doc.data());
+
+        if (doc.data() === undefined) return;
+
         setLines(doc.data().lines);
         setDocInfo({ ...doc.data().docinfo, pageIds: doc.data().pageIds });
       }
     );
-    return () => {
-      unsub();
-    };
   };
 
   // === Realtime updates ====
@@ -309,7 +312,7 @@ export default function Canvas(props) {
     return () => {
       document.removeEventListener("click", handleSave);
     };
-  },);
+  });
 
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
