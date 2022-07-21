@@ -27,7 +27,11 @@ import "./Canvas.css";
 import { nanoid as rid } from "nanoid";
 import CLine from "./Canvas/Line";
 import { colord } from "colord";
-import { setDoc, doc as firestoreDoc, onSnapshot } from "firebase/firestore";
+import {
+  setDoc,
+  doc as firestoreDoc,
+  getDoc as firestoreGet,
+} from "firebase/firestore";
 import { useAuth, db } from "../hooks/useAuth";
 
 // === For undo & redo =====
@@ -100,7 +104,7 @@ export default function Canvas(props) {
 
   const handleMouseDown = (e) => {
     if (![undefined, 0].includes(e.evt.button)) return;
-    
+
     const pos = e.target.getStage().getRelativePointerPosition();
     setCurrentLine({
       id: rid(),
@@ -144,9 +148,9 @@ export default function Canvas(props) {
     let lastLine =
       currentLine.points.length === 2
         ? {
-          ...currentLine,
-          points: currentLine.points.concat(currentLine.points),
-        }
+            ...currentLine,
+            points: currentLine.points.concat(currentLine.points),
+          }
         : { ...currentLine };
 
     // Find the page that this line should belong to
@@ -271,34 +275,46 @@ export default function Canvas(props) {
       lines: lines,
       pageIds: doc.pages.map((page) => page.id),
     };
-    console.log(docData);
+    console.log("Saved data: ", docData);
     setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
   };
 
   const handleRestore = () => {
-    const unsub = onSnapshot(
-      firestoreDoc(db, "Test", user?.uid + docInfo.name),
+    firestoreGet(firestoreDoc(db, "Test", user?.uid + docInfo.name)).then(
       (doc) => {
         console.log("Current data: ", doc.data());
+
+        if (doc.data() === undefined) return;
+
         setLines(doc.data().lines);
         setDocInfo({ ...doc.data().docinfo, pageIds: doc.data().pageIds });
       }
     );
-    return () => {
-      unsub();
-    };
   };
 
   // === Realtime updates ====
-  // useEffect(() => {
-  //   handleSave();
-  //   const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
-  //     const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
-  //     console.log(source, " data: ", doc.data());
-  //   });
+  useEffect(() => {
+    // updating every 2 seconds
+    const timer = setInterval(() => {
+      handleRestore();
+    }, 2000);
+    return () => {
+      clearInterval(timer);
+    };
+  });
 
-  //   return () => unsub();
-  // });
+  // save the current state of the lines after every mouse click
+  useEffect(() => {
+    // attach the event listener
+    document.addEventListener("click", handleSave);
+    document.addEventListener("touchend", handleSave);
+
+    // remove the event listener
+    return () => {
+      document.removeEventListener("click", handleSave);
+      document.removeEventListener("touchend", handleSave);
+    };
+  });
 
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
@@ -641,9 +657,7 @@ export default function Canvas(props) {
             />
           </Box>
         </span>
-        <Button onClick={resetView}>
-          Reset view
-        </Button>
+        <Button onClick={resetView}>Reset view</Button>
         <ClickAwayListener onClickAway={handleImportClose}>
           <div>
             <span>
@@ -730,9 +744,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
             <DocRenderer doc={doc} />
