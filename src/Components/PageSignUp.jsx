@@ -33,122 +33,131 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignUp() {
-  const { signup, errorMessage } = useAuth();
+    const { signup } = useAuth();
+    const [statusMessage, setStatusMessage] = React.useState();
 
-  const renderErrorMessage = (errorMessage) => {
-    console.log(errorMessage);
-    if (
-      errorMessage ===
-      "Firebase: Password should be at least 6 characters (auth/weak-password)."
-    ) {
-      return "Password should be at least 6 characters";
-    } else if (errorMessage === "Firebase: Error (auth/invalid-email).") {
-      return "Invalid email";
-    } else if (
-      errorMessage === "Firebase: Error (auth/email-already-in-use)."
-    ) {
-      return "Email already in use";
-    } else {
-      return errorMessage;
-    }
-  };
+    const renderStatusMessage = (statusMessage) => {
+        // console.log(statusMessage);
+        const mappings = {
+            "Firebase: Successfully created account": "Successfully created account!",
+            "Firebase: Password should be at least 6 characters (auth/weak-password).":
+                "Password should be at least 6 characters",
+            "Firebase: Error (auth/invalid-email).": "Invalid email",
+            "Firebase: Error (auth/email-already-in-use).": "Email already in use",
+        };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    signup(data.get("email"), data.get("password"));
-  };
+        return mappings[statusMessage] ?? statusMessage;
+    };
 
-  return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <Box
-            component="form"
-            noValidate
-            onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
-          >
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="given-name"
-                  name="firstName"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
-                <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                  {renderErrorMessage(errorMessage)}
-                </Typography>
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="/" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-        <Copyright sx={{ mt: 5 }} />
-      </Container>
-    </ThemeProvider>
-  );
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        signup(data.get("email"), data.get("password"))
+            .then((_) =>
+                setStatusMessage({
+                    mood: "primary",
+                    text: "Firebase: Successfully created account",
+                })
+            )
+            .catch((error) =>
+                setStatusMessage({ mood: "error", text: error.message })
+            );
+    };
+
+    return (
+        <ThemeProvider theme={theme}>
+            <Container component="main" maxWidth="xs">
+                <CssBaseline />
+                <Box
+                    sx={{
+                        marginTop: 8,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                    }}
+                >
+                    <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+                        <LockOutlinedIcon />
+                    </Avatar>
+                    <Typography component="h1" variant="h5">
+                        Sign up
+                    </Typography>
+                    <Box
+                        component="form"
+                        noValidate
+                        onSubmit={handleSubmit}
+                        sx={{ mt: 3 }}
+                    >
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    autoComplete="given-name"
+                                    name="firstName"
+                                    required
+                                    fullWidth
+                                    id="firstName"
+                                    label="First Name"
+                                    autoFocus
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    id="lastName"
+                                    label="Last Name"
+                                    name="lastName"
+                                    autoComplete="family-name"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    id="email"
+                                    label="Email Address"
+                                    name="email"
+                                    autoComplete="email"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    name="password"
+                                    label="Password"
+                                    type="password"
+                                    id="password"
+                                    autoComplete="new-password"
+                                />
+                                <Typography
+                                    variant="body2"
+                                    color={statusMessage?.mood}
+                                    sx={{ mt: 1 }}
+                                >
+                                    {renderStatusMessage(statusMessage?.text)}
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{ mt: 3, mb: 2 }}
+                        >
+                            Sign Up
+                        </Button>
+                        <Grid container justifyContent="flex-end">
+                            <Grid item>
+                                <Link href="/" variant="body2">
+                                    Already have an account? Sign in
+                                </Link>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                </Box>
+                <Copyright sx={{ mt: 5 }} />
+            </Container>
+        </ThemeProvider>
+    );
 }
