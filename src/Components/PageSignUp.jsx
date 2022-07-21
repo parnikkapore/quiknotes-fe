@@ -13,21 +13,21 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useAuth } from "../hooks/useAuth";
 
 function Copyright(props) {
-    return (
-        <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-            {...props}
-        >
-            {"Copyright © "}
-            <Link color="inherit" href="https://github.com/parnikkapore/quiknotes-fe">
-                Creative Noters
-            </Link>{" "}
-            {new Date().getFullYear()}
-            {"."}
-        </Typography>
-    );
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {"Copyright © "}
+      <Link color="inherit" href="https://github.com/parnikkapore/quiknotes-fe">
+        Creative Noters
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
+  );
 }
 
 const theme = createTheme();
