@@ -247,9 +247,9 @@ export default function Canvas(props) {
   // === File opening and saving =====
 
   const [docInfo, setDocInfo] = React.useState({
-    name: "Test PDF",
+    name: "Starting document",
     type: "application/pdf",
-    url: "/test1.pdf",
+    url: "/start.pdf",
   });
   const [doc, DocRenderer, DocAddButtons] = useDocument(docInfo);
 
