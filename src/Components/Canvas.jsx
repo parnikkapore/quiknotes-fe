@@ -99,7 +99,7 @@ export default function Canvas(props) {
   });
 
   const handleMouseDown = (e) => {
-    if (e.evt.button !== 0) return;
+    if (![undefined, 0].includes(e.evt.button)) return;
     
     const pos = e.target.getStage().getRelativePointerPosition();
     setCurrentLine({
@@ -137,7 +137,7 @@ export default function Canvas(props) {
   };
 
   const handleMouseUp = (e) => {
-    if (e.evt.button !== 0) return;
+    if (![undefined, 0].includes(e.evt.button)) return;
     if (currentLine === null) return;
 
     // if there's only one point, dupe it so it draws properly
