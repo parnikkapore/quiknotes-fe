@@ -289,33 +289,27 @@ export default function Canvas(props) {
     };
   };
 
-  const handleRefresh = () => {
-    const unsub = onSnapshot(
-      firestoreDoc(db, "Test", user?.uid + docInfo.name),
-      (doc) => {
-        console.log("Current data: ", doc.data());
-        setLines(doc.data().lines);
-        // if there is lines in the doc, set the doc info to the latest
-        if(lines.length > doc.data().lines.length){
-          handleSave();
-        }
-        setDocInfo({ ...doc.data().docinfo, pageIds: doc.data().pageIds });
-      }
-    );
-    return () => {
-      unsub();
-    };
-  };
-
   // === Realtime updates ====
   useEffect(() => {
+    // updating every 2 seconds
     const timer = setInterval(() => {
-      handleRefresh();
-    }, 1500);
+      handleRestore();
+    }, 2000);
     return () => {
       clearInterval(timer);
     };
   });
+
+  // save the current state of the lines after every mouse click
+  useEffect(() => {
+    // attach the event listener
+    document.addEventListener("click", handleSave);
+
+    // remove the event listener
+    return () => {
+      document.removeEventListener("click", handleSave);
+    };
+  },);
 
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
