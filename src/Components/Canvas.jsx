@@ -307,10 +307,12 @@ export default function Canvas(props) {
   useEffect(() => {
     // attach the event listener
     document.addEventListener("click", handleSave);
+    document.addEventListener("touchend", handleSave);
 
     // remove the event listener
     return () => {
       document.removeEventListener("click", handleSave);
+      document.removeEventListener("touchend", handleSave);
     };
   });
 
