@@ -27,7 +27,11 @@ import "./Canvas.css";
 import { nanoid as rid } from "nanoid";
 import CLine from "./Canvas/Line";
 import { colord } from "colord";
-import { setDoc, doc as firestoreDoc, onSnapshot } from "firebase/firestore";
+import {
+  setDoc,
+  doc as firestoreDoc,
+  getDoc as firestoreGet,
+} from "firebase/firestore";
 import { useAuth, db } from "../hooks/useAuth";
 
 // === For undo & redo =====
@@ -73,17 +77,16 @@ export default function Canvas(props) {
     default: {
       color: {
         width: "36px",
-        height: "14px",
+        height: "26px",
         borderRadius: "2px",
         background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
       },
       swatch: {
         padding: "5px",
         background: "#fff",
-        borderRadius: "1px",
+        border: "none",
         boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
         display: "inline-block",
-        cursor: "pointer",
       },
       popover: {
         position: "absolute",
@@ -100,6 +103,8 @@ export default function Canvas(props) {
   });
 
   const handleMouseDown = (e) => {
+    if (![undefined, 0].includes(e.evt.button)) return;
+
     const pos = e.target.getStage().getRelativePointerPosition();
     setCurrentLine({
       id: rid(),
@@ -113,9 +118,7 @@ export default function Canvas(props) {
 
   const handleMouseMove = (e) => {
     // no drawing - skipping
-    if (currentLine === null) {
-      return;
-    }
+    if (currentLine === null) return;
 
     const stage = e.target.getStage();
     const point = stage.getRelativePointerPosition();
@@ -137,18 +140,17 @@ export default function Canvas(props) {
     });
   };
 
-  const handleMouseUp = () => {
-    if (currentLine === null) {
-      return;
-    }
+  const handleMouseUp = (e) => {
+    if (![undefined, 0].includes(e.evt.button)) return;
+    if (currentLine === null) return;
 
     // if there's only one point, dupe it so it draws properly
     let lastLine =
       currentLine.points.length === 2
         ? {
-          ...currentLine,
-          points: currentLine.points.concat(currentLine.points),
-        }
+            ...currentLine,
+            points: currentLine.points.concat(currentLine.points),
+          }
         : { ...currentLine };
 
     // Find the page that this line should belong to
@@ -245,11 +247,11 @@ export default function Canvas(props) {
   // === File opening and saving =====
 
   const [docInfo, setDocInfo] = React.useState({
-    name: "Test PDF",
+    name: "Starting document",
     type: "application/pdf",
-    url: "/test1.pdf",
+    url: "/start.pdf",
   });
-  const [doc, DocRenderer, DocAddButtons] = useDocument(docInfo);
+  const [doc, DocRenderer] = useDocument(docInfo);
 
   function handleFileOpen(e) {
     const file = e.target.files[0];
@@ -263,6 +265,8 @@ export default function Canvas(props) {
       type: file.type,
       url: URL.createObjectURL(file),
     });
+    handleImportClose();
+    setImportOpen(false);
   }
 
   const handleSave = () => {
@@ -272,35 +276,55 @@ export default function Canvas(props) {
       docinfo: docInfo,
       lines: lines,
       pageIds: doc.pages.map((page) => page.id),
+      // history : JSON.stringify(history),
+      // historyStep : historyStep,
     };
-    console.log(docData);
+    console.log("Saved data: ", docData);
     setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
   };
 
   const handleRestore = () => {
-    const unsub = onSnapshot(
-      firestoreDoc(db, "Test", user?.uid + docInfo.name),
+    firestoreGet(firestoreDoc(db, "Test", user?.uid + docInfo.name)).then(
       (doc) => {
         console.log("Current data: ", doc.data());
+
+        if (doc.data() === undefined) return;
+
         setLines(doc.data().lines);
-        setDocInfo({ ...doc.data().docinfo, pageIds: doc.data().pageIds });
+        // Currently, the restored document is always the one we have open
+        setDocInfo({ ...docInfo, pageIds: doc.data().pageIds });
+        // history = JSON.parse(doc.data().history);
+        // historyStep = doc.data().historyStep;
       }
     );
-    return () => {
-      unsub();
-    };
   };
 
   // === Realtime updates ====
-  // useEffect(() => {
-  //   handleSave();
-  //   const unsub = onSnapshot(firestoreDoc(db, "Test", user?.uid + docInfo.name), (doc) => {
-  //     const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
-  //     console.log(source, " data: ", doc.data());
-  //   });
+  useEffect(() => {
+    // updating every 1 second
+    if(importOpen || exportOpen){
+      return;
+    }
+    const timer = setInterval(() => {
+      handleRestore();
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  });
 
-  //   return () => unsub();
-  // });
+  // save the current state of the lines after every mouse click
+  useEffect(() => {
+    // attach the event listener
+    document.addEventListener("click", handleSave);
+    document.addEventListener("touchend", handleSave);
+
+    // remove the event listener
+    return () => {
+      document.removeEventListener("click", handleSave);
+      document.removeEventListener("touchend", handleSave);
+    };
+  });
 
   const the_stage = React.useRef(null);
   const the_layer = React.useRef(null);
@@ -399,6 +423,7 @@ export default function Canvas(props) {
       // 2. Render the lines
       const pages = docPdf.getPages();
       for (const line of lines) {
+        if (line.tool === "eraser") continue;
         const pageObj = doc.pagemap.get(line.page);
         if (pageObj === undefined) {
           console.error(
@@ -605,13 +630,16 @@ export default function Canvas(props) {
         <IconButton aria-label="Redo" onClick={handleRedo}>
           <RedoIcon />
         </IconButton>
-        <Button onClick={handleSave}>Save</Button>
-        <Button onClick={handleRestore}>Restore</Button>
-        <Button onClick={handleClear}>Clear</Button>
         <span>
-          <div style={styles.swatch} onClick={handleClick}>
+          <button
+            style={styles.swatch}
+            aria-label="Stroke color"
+            aria-pressed={displayColorPicker}
+            aria-expanded={displayColorPicker}
+            onClick={handleClick}
+          >
             <div style={styles.color} />
-          </div>
+          </button>
           {displayColorPicker ? (
             <div style={styles.popover}>
               <div style={styles.cover} onClick={handleClose} />
@@ -637,9 +665,8 @@ export default function Canvas(props) {
             />
           </Box>
         </span>
-        <Button onClick={resetView}>
-          Reset view
-        </Button>
+        <Button onClick={handleClear}>Clear</Button>
+        <Button onClick={resetView}>Reset view</Button>
         <ClickAwayListener onClickAway={handleImportClose}>
           <div>
             <span>
@@ -665,7 +692,7 @@ export default function Canvas(props) {
               >
                 <IconButton
                   size="medium"
-                  aria-label="Help"
+                  aria-label="Import"
                   color="inherit"
                   onClick={importOpen ? handleImportClose : handleImportOpen}
                 >
@@ -726,9 +753,9 @@ export default function Canvas(props) {
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
-          onMouseDown={tool !== "drag" ? handleMouseDown : () => { }}
-          onMouseUp={tool !== "drag" ? handleMouseUp : () => { }}
-          onMouseMove={tool !== "drag" ? handleMouseMove : () => { }}
+          onMouseDown={tool !== "drag" ? handleMouseDown : () => {}}
+          onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
+          onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
           <Layer ref={the_layer}>
             <DocRenderer doc={doc} />
@@ -751,9 +778,6 @@ export default function Canvas(props) {
                 }
               />
             )}
-          </Layer>
-          <Layer>
-            <DocAddButtons doc={doc} />
           </Layer>
         </ScrollableStage>
       </div>

@@ -111,6 +111,8 @@ dist
 
 # testing
 /coverage
+/cypress/screenshots
+/cypress/downloads
 
 # production
 /build

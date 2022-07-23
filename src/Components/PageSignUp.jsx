@@ -13,50 +13,56 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useAuth } from "../hooks/useAuth";
 
 function Copyright(props) {
-    return (
-        <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-            {...props}
-        >
-            {"Copyright © "}
-            <Link color="inherit" href="https://github.com/parnikkapore/quiknotes-fe">
-                Creative Noters
-            </Link>{" "}
-            {new Date().getFullYear()}
-            {"."}
-        </Typography>
-    );
+  return (
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {"Copyright © "}
+      <Link color="inherit" href="https://github.com/parnikkapore/quiknotes-fe">
+        Creative Noters
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
+  );
 }
 
 const theme = createTheme();
 
 export default function SignUp() {
-    const { signup, errorMessage } = useAuth();
+    const { signup } = useAuth();
+    const [statusMessage, setStatusMessage] = React.useState();
 
-    const renderErrorMessage = (errorMessage) => {
-        console.log(errorMessage);
-        if (
-            errorMessage ===
-            "Firebase: Password should be at least 6 characters (auth/weak-password)."
-        ) {
-            return "Password should be at least 6 characters";
-        } else if (errorMessage === "Firebase: Error (auth/invalid-email).") {
-            return "Invalid email";
-        } else if (
-            errorMessage === "Firebase: Error (auth/email-already-in-use)."
-        ) {
-            return "Email already in use";
-        } else {
-            return errorMessage;
-        }
+    const renderStatusMessage = (statusMessage) => {
+        // console.log(statusMessage);
+        const mappings = {
+            "Firebase: Successfully created account": "Successfully created account!",
+            "Firebase: Password should be at least 6 characters (auth/weak-password).":
+                "Password should be at least 6 characters",
+            "Firebase: Error (auth/invalid-email).": "Invalid email",
+            "Firebase: Error (auth/email-already-in-use).": "Email already in use",
+            "Firebase: Error (auth/internal-error).": "Please enter a valid email and password",
+        };
+
+        return mappings[statusMessage] ?? statusMessage;
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        signup(data.get("email"), data.get("password"));
+        signup(data.get("email"), data.get("password"))
+            .then((_) =>
+                setStatusMessage({
+                    mood: "primary",
+                    text: "Firebase: Successfully created account",
+                })
+            )
+            .catch((error) =>
+                setStatusMessage({ mood: "error", text: error.message })
+            );
     };
 
     return (
@@ -125,8 +131,12 @@ export default function SignUp() {
                                     id="password"
                                     autoComplete="new-password"
                                 />
-                                <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                                    {renderErrorMessage(errorMessage)}
+                                <Typography
+                                    variant="body2"
+                                    color={statusMessage?.mood}
+                                    sx={{ mt: 1 }}
+                                >
+                                    {renderStatusMessage(statusMessage?.text)}
                                 </Typography>
                             </Grid>
                         </Grid>
