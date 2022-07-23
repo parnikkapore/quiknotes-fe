@@ -291,7 +291,8 @@ export default function Canvas(props) {
         if (doc.data() === undefined) return;
 
         setLines(doc.data().lines);
-        setDocInfo({ ...doc.data().docinfo, pageIds: doc.data().pageIds });
+        // Currently, the restored document is always the one we have open
+        setDocInfo({ ...docInfo, pageIds: doc.data().pageIds });
         history = JSON.parse(doc.data().history);
         historyStep = doc.data().historyStep;
       }
