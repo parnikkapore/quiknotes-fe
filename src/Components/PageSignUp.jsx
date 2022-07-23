@@ -44,6 +44,7 @@ export default function SignUp() {
                 "Password should be at least 6 characters",
             "Firebase: Error (auth/invalid-email).": "Invalid email",
             "Firebase: Error (auth/email-already-in-use).": "Email already in use",
+            "Firebase: Error (auth/internal-error).": "Please enter a valid email and password",
         };
 
         return mappings[statusMessage] ?? statusMessage;
