@@ -298,10 +298,13 @@ export default function Canvas(props) {
 
   // === Realtime updates ====
   useEffect(() => {
-    // updating every 2 seconds
+    // updating every 1.5 seconds
+    if(importOpen || exportOpen){
+      return;
+    }
     const timer = setInterval(() => {
       handleRestore();
-    }, 2000);
+    }, 1500);
     return () => {
       clearInterval(timer);
     };
