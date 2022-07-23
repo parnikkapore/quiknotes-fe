@@ -413,6 +413,7 @@ export default function Canvas(props) {
       // 2. Render the lines
       const pages = docPdf.getPages();
       for (const line of lines) {
+        if (line.tool === "eraser") continue;
         const pageObj = doc.pagemap.get(line.page);
         if (pageObj === undefined) {
           console.error(
