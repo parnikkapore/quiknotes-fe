@@ -47,6 +47,8 @@ export default function PageForgotPassword() {
       return "Invalid email";
     } else if (errorMessage === "Firebase: Error (auth/missing-email).") {
       return "Email is required";
+    } else if (errorMessage === "Firebase: Error (auth/user-not-found).") {
+      return "User not found";
     } else {
       return errorMessage;
     }
