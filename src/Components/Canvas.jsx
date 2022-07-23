@@ -627,8 +627,6 @@ export default function Canvas(props) {
         <IconButton aria-label="Redo" onClick={handleRedo}>
           <RedoIcon />
         </IconButton>
-        <Button onClick={handleSave}>Save</Button>
-        <Button onClick={handleRestore}>Restore</Button>
         <Button onClick={handleClear}>Clear</Button>
         <span>
           <button
