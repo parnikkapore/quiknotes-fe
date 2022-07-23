@@ -102,7 +102,7 @@ export default function useDocument(docInfo) {
         console.log(`Unknown file type ${docInfo.type} opened!`);
     }
 
-    return () => URL.revokeObjectURL(docInfo.url);
+    // return () => URL.revokeObjectURL(docInfo.url);
   }, [docInfo]);
 
   const [laidDoc, setLaidDoc] = React.useState(emptyPDF);
