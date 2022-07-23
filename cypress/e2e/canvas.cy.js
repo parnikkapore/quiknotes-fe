@@ -459,7 +459,7 @@ describe("Clear screen", () => {
   });
 });
 
-describe("Add new page", () => {
+describe.skip("Add new page", () => {
   beforeEach(() => {
     openFile("@testpdf");
   });
