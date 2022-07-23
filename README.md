@@ -34,7 +34,6 @@ We plan to build an open-source, desktop and mobile quick note-taking and annota
 ### Backend
 
 - [Firebase Firestore](https://firebase.google.com/products/firestore)
-- Stretch goal: [Firebase Realtime](https://firebase.google.com/products/realtime-database)
 
 ---
 
