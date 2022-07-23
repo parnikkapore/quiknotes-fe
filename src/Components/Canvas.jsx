@@ -265,6 +265,8 @@ export default function Canvas(props) {
       type: file.type,
       url: URL.createObjectURL(file),
     });
+    handleImportClose();
+    setImportOpen(false);
   }
 
   const handleSave = () => {
@@ -298,13 +300,13 @@ export default function Canvas(props) {
 
   // === Realtime updates ====
   useEffect(() => {
-    // updating every 1.5 seconds
+    // updating every 1 second
     if(importOpen || exportOpen){
       return;
     }
     const timer = setInterval(() => {
       handleRestore();
-    }, 1500);
+    }, 1000);
     return () => {
       clearInterval(timer);
     };
