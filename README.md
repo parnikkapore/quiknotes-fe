@@ -35,6 +35,8 @@ We plan to build an open-source, desktop and mobile quick note-taking and annota
 
 - [Firebase Firestore](https://firebase.google.com/products/firestore)
 
+### Testing
+- [Cypress](https://www.cypress.io)
 ---
 
 # Attribution
