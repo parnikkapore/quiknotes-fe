@@ -276,8 +276,8 @@ export default function Canvas(props) {
       docinfo: docInfo,
       lines: lines,
       pageIds: doc.pages.map((page) => page.id),
-      history : JSON.stringify(history),
-      historyStep : historyStep,
+      // history : JSON.stringify(history),
+      // historyStep : historyStep,
     };
     console.log("Saved data: ", docData);
     setDoc(firestoreDoc(db, "Test", user?.uid + docInfo.name), docData);
@@ -293,8 +293,8 @@ export default function Canvas(props) {
         setLines(doc.data().lines);
         // Currently, the restored document is always the one we have open
         setDocInfo({ ...docInfo, pageIds: doc.data().pageIds });
-        history = JSON.parse(doc.data().history);
-        historyStep = doc.data().historyStep;
+        // history = JSON.parse(doc.data().history);
+        // historyStep = doc.data().historyStep;
       }
     );
   };
