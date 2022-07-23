@@ -77,7 +77,7 @@ export default function Canvas(props) {
     default: {
       color: {
         width: "36px",
-        height: "14px",
+        height: "26px",
         borderRadius: "2px",
         background: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
       },
@@ -630,7 +630,6 @@ export default function Canvas(props) {
         <IconButton aria-label="Redo" onClick={handleRedo}>
           <RedoIcon />
         </IconButton>
-        <Button onClick={handleClear}>Clear</Button>
         <span>
           <button
             style={styles.swatch}
@@ -666,6 +665,7 @@ export default function Canvas(props) {
             />
           </Box>
         </span>
+        <Button onClick={handleClear}>Clear</Button>
         <Button onClick={resetView}>Reset view</Button>
         <ClickAwayListener onClickAway={handleImportClose}>
           <div>
