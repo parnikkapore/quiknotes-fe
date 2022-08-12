@@ -327,24 +327,34 @@ export default function Canvas(props) {
   });
 
   const the_stage = React.useRef(null);
-  const the_layer = React.useRef(null);
+  const originals_layer = React.useRef(null);
+  const annotations_layer = React.useRef(null);
+  // const addButtons_layer = React.useRef(null);
 
   const RASTERIZER_DPR = 3;
 
   function rasterizePage(pageNumber) {
     const stage = the_stage.current;
-    const layer = the_layer.current;
-    const { x: minX, width } = layer.getClientRect({
-      skipTransform: true,
-    });
+    
+    function findBoundingBox() {
+      const { x: omx, width: ow } = originals_layer.current.getClientRect({skipTransform: true,});
+      const { x: amx, width: aw } = annotations_layer.current.getClientRect({skipTransform: true,});
+      const oMx = omx+ow;
+      const aMx = amx+aw;
+      const rmx = Math.min(omx, amx);
+      const rMx = Math.max(oMx, aMx);
+      return { minX: rmx, width: rMx-rmx };
+    }
+    const { minX, width } = findBoundingBox();
 
     const oldAttrs = { ...stage.getAttrs() };
+    // addButtons_layer.current.hide()
     let dataURL = null;
     try {
       stage.position({ x: 0, y: 0 });
       stage.scale({ x: 1, y: 1 });
 
-      dataURL = layer.toDataURL({
+      dataURL = stage.toDataURL({
         pixelRatio: RASTERIZER_DPR,
         x: minX,
         y: doc.pages[pageNumber].ypos,
@@ -353,6 +363,7 @@ export default function Canvas(props) {
       });
     } finally {
       stage.setAttrs(oldAttrs);
+      // addButtons_layer.current.show()
     }
 
     return dataURL;
@@ -757,8 +768,10 @@ export default function Canvas(props) {
           onMouseUp={tool !== "drag" ? handleMouseUp : () => {}}
           onMouseMove={tool !== "drag" ? handleMouseMove : () => {}}
         >
-          <Layer ref={the_layer}>
+          <Layer ref={originals_layer}>
             <DocRenderer doc={doc} />
+          </Layer>
+          <Layer ref={annotations_layer}>
             {lines.map((line) => (
               <CLine key={line.id} line={line} doc={doc} />
             ))}
