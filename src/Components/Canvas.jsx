@@ -302,7 +302,7 @@ export default function Canvas(props) {
   // === Realtime updates ====
   useEffect(() => {
     // updating every 1 second
-    if(importOpen || exportOpen){
+    if (importOpen || exportOpen) {
       return;
     }
     const timer = setInterval(() => {
@@ -335,15 +335,19 @@ export default function Canvas(props) {
 
   function rasterizePage(pageNumber) {
     const stage = the_stage.current;
-    
+
     function findBoundingBox() {
-      const { x: omx, width: ow } = originals_layer.current.getClientRect({skipTransform: true,});
-      const { x: amx, width: aw } = annotations_layer.current.getClientRect({skipTransform: true,});
-      const oMx = omx+ow;
-      const aMx = amx+aw;
+      const { x: omx, width: ow } = originals_layer.current.getClientRect({
+        skipTransform: true,
+      });
+      const { x: amx, width: aw } = annotations_layer.current.getClientRect({
+        skipTransform: true,
+      });
+      const oMx = omx + ow;
+      const aMx = amx + aw;
       const rmx = Math.min(omx, amx);
       const rMx = Math.max(oMx, aMx);
-      return { minX: rmx, width: rMx-rmx };
+      return { minX: rmx, width: rMx - rmx };
     }
     const { minX, width } = findBoundingBox();
 
