@@ -9,7 +9,7 @@ We plan to build an open-source, desktop and mobile quick note-taking and annota
 ### Implemented Features
 
 - Authentication using email and password, anonymous login, and sign in with Google
-- Free drawing tools such as pen and highlighter
+- Free drawing tools such as pen, highlighter and eraser
 - Help page
 - Color picker and line thickness slider
 - Save and restore the annotations to Firestore Database
