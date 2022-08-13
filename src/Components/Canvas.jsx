@@ -120,6 +120,8 @@ export default function Canvas(props) {
     // no drawing - skipping
     if (currentLine === null) return;
 
+    e.evt.preventDefault();
+
     const stage = e.target.getStage();
     const point = stage.getRelativePointerPosition();
 
