@@ -97,7 +97,7 @@ function pickColor(color) {
 
 function drawSampleLines() {
   // cy.get('[aria-label="Pen"]').click(); // Make sure pen tool is activated
-  cy.get(".MuiSlider-colorPrimary").click("center"); // Enlarge the pen to make tests easier
+  cy.get(".MuiSlider-colorPrimary").click(74, 15); // Enlarge the pen to make tests easier
   pickColor("#000000");
   strokeLine1();
   pickColor("#F5A623");
@@ -107,7 +107,7 @@ function drawSampleLines() {
 // A test document that uses all of the available facilities
 function drawQuickBrownFox() {
   // cy.get('[aria-label="Pen"]').click(); // Make sure pen tool is activated
-  cy.get(".MuiSlider-colorPrimary").click("center"); // Enlarge the pen to make tests easier
+  cy.get(".MuiSlider-colorPrimary").click(74, 15); // Enlarge the pen to make tests easier
   pickColor("#F5A623");
   strokeLine1();
   cy.get('[aria-label="Highlighter"]').click();
@@ -137,7 +137,7 @@ function initDrawingTestState(doDrawSampleLines = false) {
     mimeType: "application/pdf",
   });
   // cy.get('[aria-label="Pen"]').click(); // Make sure pen tool is activated
-  cy.get(".MuiSlider-colorPrimary").click("center"); // Enlarge the pen to make tests easier
+  cy.get(".MuiSlider-colorPrimary").click(74, 15); // Enlarge the pen to make tests easier
   initDrawingTestView(); // And make it even easier by zooming in
 
   if (doDrawSampleLines) drawSampleLines();
