@@ -15,6 +15,8 @@ We plan to build an open-source, desktop and mobile quick note-taking and annota
 - Save and restore the annotations to Firestore Database
 - Importing files for annotation
 - Exporting as image, bitmap pdf, and vector pdf
+- Realtime updates across multiple devices
+
 
 
 ## Technologies
