@@ -14,7 +14,7 @@ function coordsToGlobal(line, doc) {
       newPoints.push(line.points[i] + pageY);
     }
   }
-  console.log("!line-coord-recalc", line.id);
+  // console.log("!line-coord-recalc", line.id);
   return newPoints;
 }
 
