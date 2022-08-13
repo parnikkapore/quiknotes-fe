@@ -16,10 +16,6 @@ We plan to build an open-source, desktop and mobile quick note-taking and annota
 - Importing files for annotation
 - Exporting as image, bitmap pdf, and vector pdf
 
-### Proposed features
-
-- Stroke eraser tool
-- Real time database
 
 ## Technologies
 
