@@ -295,6 +295,7 @@ export default function Canvas(props) {
         setDocInfo({ ...docInfo, pageIds: doc.data().pageIds });
         // history = JSON.parse(doc.data().history);
         // historyStep = doc.data().historyStep;
+        history[historyStep] = doc.data().lines;
       }
     );
   };
@@ -318,11 +319,11 @@ export default function Canvas(props) {
     // attach the event listener
     document.addEventListener("click", handleSave);
     document.addEventListener("touchend", handleSave);
-
-    // remove the event listener
+    document.addEventListener("keyup", handleSave);
     return () => {
       document.removeEventListener("click", handleSave);
       document.removeEventListener("touchend", handleSave);
+      document.removeEventListener("keyup", handleSave);
     };
   });
 
