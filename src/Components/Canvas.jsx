@@ -111,8 +111,9 @@ export default function Canvas(props) {
       tool,
       points: [pos.x, pos.y],
       color: strokeColor,
-      opacity: 1,
-      strokeWidth: strokeWidth,
+      opacity: tool === "highlighter" ? 0.5 : 1,
+      strokeWidth:
+        tool === "highlighter" ? highlighterStrokeWidth : strokeWidth,
     });
   };
 
@@ -130,13 +131,6 @@ export default function Canvas(props) {
 
       // add point
       currentLine.points = _currentLine.points.concat([point.x, point.y]);
-
-      // update color
-      currentLine.color = strokeColor;
-      if (tool === "highlighter") {
-        currentLine.opacity = 0.5;
-        currentLine.strokeWidth = highlighterStrokeWidth;
-      }
 
       return currentLine;
     });
