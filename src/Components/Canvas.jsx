@@ -33,7 +33,6 @@ import {
   getDoc as firestoreGet,
 } from "firebase/firestore";
 import { useAuth, db } from "../hooks/useAuth";
-import { useLayoutEffect } from "react";
 
 // === For undo & redo =====
 
@@ -298,7 +297,10 @@ export default function Canvas(props) {
   };
 
   // === Fetch data after login ====
-  useLayout(handleRestore, []);
+
+  // intentionally abusing this to run once after mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(handleRestore, []);
 
   // === Realtime updates ====
   useEffect(() => {
