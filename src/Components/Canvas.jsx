@@ -33,6 +33,7 @@ import {
   getDoc as firestoreGet,
 } from "firebase/firestore";
 import { useAuth, db } from "../hooks/useAuth";
+import { useLayoutEffect } from "react";
 
 // === For undo & redo =====
 
@@ -295,6 +296,9 @@ export default function Canvas(props) {
       }
     );
   };
+
+  // === Fetch data after login ====
+  useLayoutEffect(handleRestore);
 
   // === Realtime updates ====
   useEffect(() => {
