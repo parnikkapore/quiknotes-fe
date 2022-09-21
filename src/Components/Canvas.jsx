@@ -296,6 +296,12 @@ export default function Canvas(props) {
     );
   };
 
+  // === Fetch data after login ====
+
+  // intentionally abusing this to run once after mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(handleRestore, []);
+
   // === Realtime updates ====
   useEffect(() => {
     // updating every 1 second
