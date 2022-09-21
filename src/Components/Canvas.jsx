@@ -298,7 +298,7 @@ export default function Canvas(props) {
   };
 
   // === Fetch data after login ====
-  useLayoutEffect(handleRestore);
+  useLayout(handleRestore, []);
 
   // === Realtime updates ====
   useEffect(() => {
